@@ -1,0 +1,81 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="120dp"
+    android:viewportWidth="360"
+    android:viewportHeight="120">
+    
+    <!-- Sky background -->
+    <path
+        android:pathData="M0,0h360v60h-360z">
+        <aapt:attr name="android:fillColor" xmlns:aapt="http://schemas.android.com/aapt">
+            <gradient
+                android:startY="0"
+                android:startX="180"
+                android:endY="60"
+                android:endX="180"
+                android:type="linear">
+                <item android:offset="0" android:color="#FF87CEEB"/>
+                <item android:offset="1" android:color="#FF6CA0C9"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    
+    <!-- Ocean background -->
+    <path
+        android:pathData="M0,60h360v60h-360z">
+        <aapt:attr name="android:fillColor" xmlns:aapt="http://schemas.android.com/aapt">
+            <gradient
+                android:startY="60"
+                android:startX="180"
+                android:endY="120"
+                android:endX="180"
+                android:type="linear">
+                <item android:offset="0" android:color="#FF4682B4"/>
+                <item android:offset="1" android:color="#FF1E5A94"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    
+    <!-- Horizon line -->
+    <path
+        android:pathData="M0,60h360v1h-360z"
+        android:fillColor="#5F8FB9" />
+    
+    <!-- Distant wave lines -->
+    <path
+        android:pathData="M-20,65C0,63 20,66 40,64C60,62 80,65 100,63C120,61 140,64 160,62C180,60 200,63 220,61C240,59 260,62 280,60C300,58 320,61 340,59C360,57 380,60 400,58"
+        android:strokeWidth="1"
+        android:strokeColor="#6BAAD1" />
+        
+    <path
+        android:pathData="M-20,70C0,68 20,71 40,69C60,67 80,70 100,68C120,66 140,69 160,67C180,65 200,68 220,66C240,64 260,67 280,65C300,63 320,66 340,64C360,62 380,65 400,63"
+        android:strokeWidth="1.5"
+        android:strokeColor="#6BAAD1" />
+    
+    <!-- Mid waves -->
+    <path
+        android:pathData="M-20,80C0,77 20,83 40,80C60,77 80,83 100,80C120,77 140,83 160,80C180,77 200,83 220,80C240,77 260,83 280,80C300,77 320,83 340,80C360,77 380,83 400,80"
+        android:strokeWidth="2"
+        android:strokeColor="#5F8FB9" />
+        
+    <path
+        android:pathData="M-20,90C0,87 20,93 40,90C60,87 80,93 100,90C120,87 140,93 160,90C180,87 200,93 220,90C240,87 260,93 280,90C300,87 320,93 340,90C360,87 380,93 400,90"
+        android:strokeWidth="3"
+        android:strokeColor="#5F8FB9" />
+    
+    <!-- Beach/foreground waves -->
+    <path
+        android:pathData="M-20,100C0,97 20,103 40,100C60,97 80,103 100,100C120,97 140,103 160,100C180,97 200,103 220,100C240,97 260,103 280,100C300,97 320,103 340,100C360,97 380,103 400,100"
+        android:strokeWidth="2"
+        android:strokeColor="#FFFFFF" />
+        
+    <path
+        android:pathData="M-20,105C0,102 20,108 40,105C60,102 80,108 100,105C120,102 140,108 160,105C180,102 200,108 220,105C240,102 260,108 280,105C300,102 320,108 340,105C360,102 380,108 400,105"
+        android:strokeWidth="3"
+        android:strokeColor="#FFFFFF" />
+        
+    <path
+        android:pathData="M-20,112C0,109 20,115 40,112C60,109 80,115 100,112C120,109 140,115 160,112C180,109 200,115 220,112C240,109 260,115 280,112C300,109 320,115 340,112C360,109 380,115 400,112"
+        android:strokeWidth="4"
+        android:strokeColor="#FFFFFF" />
+</vector> 

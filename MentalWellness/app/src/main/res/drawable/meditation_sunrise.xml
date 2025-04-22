@@ -1,0 +1,53 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="200dp"
+    android:viewportWidth="360"
+    android:viewportHeight="200">
+    
+    <!-- Sky gradient background -->
+    <path
+        android:pathData="M0,0h360v200h-360z"
+        android:fillColor="#4A6572" />
+        
+    <!-- Sunrise gradient overlay -->
+    <path
+        android:pathData="M0,50h360v150h-360z">
+        <aapt:attr name="android:fillColor" xmlns:aapt="http://schemas.android.com/aapt">
+            <gradient
+                android:startY="50"
+                android:startX="180"
+                android:endY="200"
+                android:endX="180"
+                android:type="linear">
+                <item android:offset="0" android:color="#88D6A682"/>
+                <item android:offset="1" android:color="#FFF2A365"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    
+    <!-- Hills -->
+    <path
+        android:pathData="M-20,120C20,100 60,110 100,95C140,80 180,90 220,85C260,80 300,75 340,90C380,105 400,130 400,130L400,200L-20,200L-20,120Z"
+        android:fillColor="#30454C" />
+        
+    <!-- Sun -->
+    <path
+        android:pathData="M240,80m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0"
+        android:fillColor="#F2A365" />
+        
+    <!-- Meditation silhouette -->
+    <path
+        android:pathData="M175,140C175,140 170,135 165,135C160,135 155,140 155,145C155,150 160,167 165,167C170,167 175,150 175,145C175,140 175,140 175,140ZM180,130C180,127 177,125 175,125C173,125 170,127 170,130C170,133 173,143 175,143C177,143 180,133 180,130ZM165,130C165,127 162,125 160,125C158,125 155,127 155,130C155,133 158,143 160,143C162,143 165,133 165,130ZM167,120L167,125L172,125L172,120L167,120Z"
+        android:fillColor="#1D2731" />
+        
+    <!-- Grass silhouettes -->
+    <path
+        android:pathData="M30,170L35,160L40,170L45,155L50,170L53,166L56,170L60,163L64,170L68,160L72,170"
+        android:strokeWidth="1.5"
+        android:strokeColor="#1D2731" />
+        
+    <path
+        android:pathData="M290,170L295,160L300,170L305,155L310,170L313,166L316,170L320,163L324,170L328,160L332,170"
+        android:strokeWidth="1.5"
+        android:strokeColor="#1D2731" />
+</vector> 

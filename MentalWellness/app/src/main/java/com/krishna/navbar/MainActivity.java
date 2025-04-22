@@ -9,7 +9,9 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+import androidx.fragment.app.Fragment;
 
+import com.krishna.navbar.fragments.HomeFragment;
 import com.nafis.bottomnavigation.NafisBottomNavigation;
 
 import kotlin.Unit;
@@ -39,39 +41,44 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Find views by ID
-
         NafisBottomNavigation bottomNavigation = findViewById(R.id.bottomNavigation);
-
 
         // Set up bottom navigation
         bottomNavigation.add(new NafisBottomNavigation.Model(1, R.drawable.round_home_24));
-        bottomNavigation.add(new NafisBottomNavigation.Model(2, R.drawable.ic_meditate));
+        bottomNavigation.add(new NafisBottomNavigation.Model(2, R.drawable.ic_om_symbol));
         bottomNavigation.add(new NafisBottomNavigation.Model(3, R.drawable.ic_play));
         bottomNavigation.add(new NafisBottomNavigation.Model(4, R.drawable.ic_sleep));
         bottomNavigation.add(new NafisBottomNavigation.Model(5, R.drawable.ic_profile));
 
-
+        // Show home fragment by default
+        
         bottomNavigation.setOnClickMenuListener(new Function1<NafisBottomNavigation.Model, Unit>() {
             @Override
             public Unit invoke(NafisBottomNavigation.Model model) {
 
                 if (model.getId() == 1) {
-                    startActivity(new Intent(MainActivity.this, ActivityTwo.class));
+                    // Home icon
+                    // Do something else or leave empty
                 } else if (model.getId() == 2) {
-                    FragmentTwo fragmentTwo = new FragmentTwo();
-
-                    getSupportFragmentManager().beginTransaction().replace(R.id.con, fragmentTwo).commit();
+                    // Meditation icon - now loads HomeFragment
+                    loadFragment(new HomeFragment());
                 } else if (model.getId() == 3) {
-
+                    // To be implemented
                 } else if (model.getId() == 4) {
-
+                    // To be implemented
                 } else if (model.getId() == 5) {
-
+                    // To be implemented
                 }
 
                 return null;
             }
         });
-
-    }}
+    }
+    
+    private void loadFragment(Fragment fragment) {
+        getSupportFragmentManager().beginTransaction()
+                .replace(R.id.con, fragment)
+                .commit();
+    }
+}
 
