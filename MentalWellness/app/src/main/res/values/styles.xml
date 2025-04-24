@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Luxury-themed text styles -->
+    <style name="LuxuryTitle">
+        <item name="android:textSize">22sp</item>
+        <item name="android:textColor">#333333</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+    </style>
+    
+    <style name="LuxurySubtitle">
+        <item name="android:textSize">18sp</item>
+        <item name="android:textColor">#555555</item>
+        <item name="android:letterSpacing">0.03</item>
+    </style>
+    
+    <style name="LuxuryBody">
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">#333333</item>
+        <item name="android:lineSpacingMultiplier">1.2</item>
+    </style>
+    
+    <style name="LuxuryTimer">
+        <item name="android:textSize">42sp</item>
+        <item name="android:textColor">#422317</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:letterSpacing">0.05</item>
+        <item name="android:shadowColor">#80D4AF37</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">2</item>
+    </style>
+    
+    <style name="LuxuryTimerLabel">
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">#422317</item>
+        <item name="android:letterSpacing">0.03</item>
+    </style>
+    
+    <style name="CircularFAB">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+</resources> 

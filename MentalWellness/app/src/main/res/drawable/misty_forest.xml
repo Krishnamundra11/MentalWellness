@@ -1,0 +1,68 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="360dp"
+    android:height="120dp"
+    android:viewportWidth="360"
+    android:viewportHeight="120">
+    
+    <!-- Dark background -->
+    <path
+        android:pathData="M0,0h360v120h-360z"
+        android:fillColor="#1D2B36" />
+        
+    <!-- Mist overlay -->
+    <path
+        android:pathData="M0,0h360v120h-360z">
+        <aapt:attr name="android:fillColor" xmlns:aapt="http://schemas.android.com/aapt">
+            <gradient
+                android:startY="0"
+                android:startX="180"
+                android:endY="120"
+                android:endX="180"
+                android:type="linear">
+                <item android:offset="0" android:color="#991D2B36"/>
+                <item android:offset="0.5" android:color="#66435B61"/>
+                <item android:offset="1" android:color="#551D2B36"/>
+            </gradient>
+        </aapt:attr>
+    </path>
+    
+    <!-- Forest silhouettes (multiple layers for depth) -->
+    <!-- Furthest trees -->
+    <path
+        android:pathData="M-20,80L0,75L20,85L40,80L60,85L80,82L100,90L120,80L140,83L160,78L180,85L200,80L220,85L240,78L260,83L280,75L300,82L320,75L340,80L360,75L380,80L400,75L400,120L-20,120L-20,80Z"
+        android:fillColor="#2D3B44" />
+        
+    <!-- Middle trees -->
+    <path
+        android:pathData="M-20,90L0,85L20,95L40,90L60,95L80,92L100,100L120,90L140,93L160,88L180,95L200,90L220,95L240,88L260,93L280,85L300,92L320,85L340,90L360,85L380,90L400,85L400,120L-20,120L-20,90Z"
+        android:fillColor="#223038" />
+        
+    <!-- Closest trees -->
+    <path
+        android:pathData="M-20,100L0,95L20,105L40,100L60,105L80,102L100,110L120,100L140,103L160,98L180,105L200,100L220,105L240,98L260,103L280,95L300,102L320,95L340,100L360,95L380,100L400,95L400,120L-20,120L-20,100Z"
+        android:fillColor="#192630" />
+        
+    <!-- Individual detailed trees in foreground -->
+    <path
+        android:pathData="M50,80L55,70L60,80L55,80L57,72L59,80L54,80L59,65L64,80L55,80"
+        android:fillColor="#141E26" />
+        
+    <path
+        android:pathData="M150,85L155,75L160,85L155,85L157,77L159,85L154,85L159,70L164,85L155,85"
+        android:fillColor="#141E26" />
+        
+    <path
+        android:pathData="M250,83L255,73L260,83L255,83L257,75L259,83L254,83L259,68L264,83L255,83"
+        android:fillColor="#141E26" />
+        
+    <!-- Fog patches -->
+    <path
+        android:pathData="M30,70C50,70 70,75 90,75C110,75 130,70 150,70C170,70 190,75 210,75C230,75 250,70 270,70"
+        android:strokeWidth="8"
+        android:strokeColor="#50FFFFFF" />
+        
+    <path
+        android:pathData="M10,90C30,90 50,95 70,95C90,95 110,90 130,90C150,90 170,95 190,95C210,95 230,90 250,90C270,90 290,95 310,95C330,95 350,90 370,90"
+        android:strokeWidth="5"
+        android:strokeColor="#40FFFFFF" />
+</vector> 

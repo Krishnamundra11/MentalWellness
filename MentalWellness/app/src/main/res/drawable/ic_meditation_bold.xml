@@ -1,0 +1,11 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Simple, bold meditation icon -->
+    <path
+        android:fillColor="#000000"
+        android:pathData="M12,2C10.3,2 9,3.3 9,5C9,6.7 10.3,8 12,8C13.7,8 15,6.7 15,5C15,3.3 13.7,2 12,2ZM6,9V11C6,13 9,17 9,17H15C15,17 18,13 18,11V9H16V11C16,11.7 14.5,13.7 13.5,15H10.5C9.5,13.7 8,11.7 8,11V9H6ZM10,18V21C10,21.6 10.4,22 11,22C11.6,22 12,21.6 12,21V18H10ZM12,18V21C12,21.6 12.4,22 13,22C13.6,22 14,21.6 14,21V18H12Z" />
+</vector> 
