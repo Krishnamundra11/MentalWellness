@@ -8,27 +8,26 @@
     android:background="#FBFBFB"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="Hello World" />
-
     <FrameLayout
         android:id="@+id/con"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/bottomNavigation"/>
+        android:layout_above="@id/bottomNavigation" />
 
-    <!-- Meow Bottom Navigation-->
+    <!-- Bottom Navigation-->
     <com.nafis.bottomnavigation.NafisBottomNavigation
         android:id="@+id/bottomNavigation"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
+        android:background="@android:color/white"
+        android:elevation="1dp"
+        android:translationZ="1dp"
+        android:outlineProvider="bounds"
+        android:stateListAnimator="@null"
+        style="@style/BottomNavigationStyle"
         app:mbn_circleColor="#FEF3E7"
         app:mbn_backgroundBottomColor="#ffffff"
-        app:mbn_countBackgroundColor="#ff6f00"
         app:mbn_countTextColor="#ffffff"
         app:mbn_countTypeface="fonts/SourceSansPro-Regular.ttf"
         app:mbn_defaultIconColor="#90a4ae"
@@ -36,5 +35,13 @@
         app:mbn_selectedIconColor="#3c415e"
         app:mbn_shadowColor="#1f212121"
         app:mbn_hasAnimation="true" />
+
+    <!-- Safety margin to ensure nothing appears behind navigation -->
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_above="@id/bottomNavigation"
+        android:background="@android:color/white"
+        android:elevation="15dp" />
 
 </RelativeLayout>
