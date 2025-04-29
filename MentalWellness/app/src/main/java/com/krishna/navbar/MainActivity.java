@@ -3,12 +3,15 @@ package com.krishna.navbar;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Window;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
@@ -19,6 +22,7 @@ import com.nafis.bottomnavigation.NafisBottomNavigation;
 
 import kotlin.Unit;
 import kotlin.jvm.functions.Function1;
+import com.google.firebase.FirebaseApp;
 
 
 public class MainActivity extends AppCompatActivity {
@@ -35,6 +39,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         EdgeToEdge.enable(this);
+        
+        // Make status bar transparent but keep content below it
+        Window window = getWindow();
+        WindowCompat.setDecorFitsSystemWindows(window, true);
+        window.setStatusBarColor(0x00000000);
+        
         setContentView(R.layout.activity_main);
 
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
@@ -48,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup bottom navigation
         setupBottomNavigation();
+
+        FirebaseApp.initializeApp(this);
     }
     
     /**
@@ -92,8 +104,8 @@ public class MainActivity extends AppCompatActivity {
                         Toast.makeText(MainActivity.this, "Sleep feature coming soon", Toast.LENGTH_SHORT).show();
                         break;
                     case ID_PROFILE:
-                        // Profile icon - To be implemented
-                        Toast.makeText(MainActivity.this, "Profile feature coming soon", Toast.LENGTH_SHORT).show();
+                        // Launch ProfileActivity
+                        startActivity(new Intent(MainActivity.this, ProfileActivity.class));
                         break;
                 }
                 return null;

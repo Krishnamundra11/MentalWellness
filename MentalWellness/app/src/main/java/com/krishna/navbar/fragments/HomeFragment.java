@@ -18,6 +18,8 @@ import com.krishna.navbar.R;
 import com.krishna.navbar.activities.DepressionHelpActivity;
 import com.krishna.navbar.activities.SleepAidActivity;
 import com.krishna.navbar.activities.StressReliefActivity;
+import com.krishna.navbar.ui.meditation.MeditationSession;
+import com.krishna.navbar.ui.meditation.MeditationSessionDetailFragment;
 
 /**
  * HomeFragment - Landing page for the Mental Wellness app
@@ -100,24 +102,19 @@ public class HomeFragment extends Fragment {
      */
     private void startSession(String sessionName, int duration) {
         // Create a new MeditationSession object
-        com.example.mentalwellness.ui.meditation.MeditationSession session = 
-            new com.example.mentalwellness.ui.meditation.MeditationSession(
-                1, // dummy id
+        MeditationSession session = 
+            new MeditationSession(
+                "1", // dummy id
                 sessionName,
                 "Description for " + sessionName + " meditation session. Practice mindfulness and relaxation.",
-                duration + " minutes",
-                R.drawable.placeholder_meditation, // Use placeholder image
-                R.raw.sample_meditation_audio  // Use sample audio
+                duration,
+                "placeholder_meditation", // Use placeholder image
+                "sample_meditation_audio"  // Use sample audio
             );
             
         // Create the fragment
-        com.example.mentalwellness.ui.meditation.MeditationSessionDetailFragment fragment = 
-            new com.example.mentalwellness.ui.meditation.MeditationSessionDetailFragment();
-            
-        // Pass the session as an argument
-        Bundle args = new Bundle();
-        args.putSerializable("meditation_session", session);
-        fragment.setArguments(args);
+        MeditationSessionDetailFragment fragment = 
+            MeditationSessionDetailFragment.newInstance(session.getId());
         
         // Navigate to the fragment
         getParentFragmentManager().beginTransaction()

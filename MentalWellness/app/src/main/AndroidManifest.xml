@@ -10,29 +10,61 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.Navbar"
+        android:theme="@style/Theme.MentalWellness"
         tools:targetApi="31">
         <activity
-            android:name=".activities.StressReliefActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.DepressionHelpActivity"
-            android:exported="false" />
-        <activity
-            android:name=".activities.SleepAidActivity"
-            android:exported="false" />
-        <activity
-            android:name=".ActivityTwo"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="true">
+            android:name="com.krishna.navbar.SplashActivity"
+            android:exported="true"
+            android:theme="@style/Theme.MentalWellness.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name="com.krishna.navbar.LoginActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
+        <activity
+            android:name="com.krishna.navbar.SignupActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
+        <activity
+            android:name="com.krishna.navbar.ResetPasswordActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
+        <activity
+            android:name="com.krishna.navbar.MainActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
+        <activity
+            android:name="com.krishna.navbar.activities.StressReliefActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.krishna.navbar.activities.DepressionHelpActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.krishna.navbar.activities.SleepAidActivity"
+            android:exported="false" />
+        <activity
+            android:name="com.krishna.navbar.ActivityTwo"
+            android:exported="false" />
+        <activity
+            android:name="com.krishna.navbar.ProfileActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
+        <activity
+            android:name="com.krishna.navbar.TherapyActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
+        <activity
+            android:name="com.krishna.navbar.MoodTrackingActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
+        <activity
+            android:name="com.krishna.navbar.WellnessLibraryActivity"
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
     </application>
 
 </manifest>

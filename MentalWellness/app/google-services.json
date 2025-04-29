@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "419684910266",
+    "project_id": "mental-wellness-96cb2",
+    "storage_bucket": "mental-wellness-96cb2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:419684910266:android:4232e34378cf52dca7ae83",
+        "android_client_info": {
+          "package_name": "com.krishna.navbar"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDK8QEcxXCapVE0iQUpdEl0jsAkeoa8YS0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -1,5 +1,6 @@
 plugins {
     alias(libs.plugins.android.application)
+    id("com.google.gms.google-services")
     alias(libs.plugins.jetbrains.kotlin.android)
 }
 
@@ -44,6 +45,15 @@ dependencies {
     implementation(libs.constraintlayout)
     implementation ("com.github.Foysalofficial:NafisBottomNav:5.0")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation(platform("com.google.firebase:firebase-bom:33.13.0"))
+    implementation ("com.google.firebase:firebase-firestore:24.8.0 ")
+    implementation ("com.google.firebase:firebase-auth:22.1.1")
+    implementation ("com.airbnb.android:lottie:6.1.0")
+    implementation(libs.glide)
+    annotationProcessor("com.github.bumptech.glide:compiler:4.16.0")
+    implementation("com.google.firebase:firebase-storage")
+
+    implementation("com.google.firebase:firebase-analytics")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)

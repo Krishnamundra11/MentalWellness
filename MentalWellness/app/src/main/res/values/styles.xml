@@ -42,8 +42,5 @@
         <item name="cornerSize">50%</item>
     </style>
     
-    <style name="BottomNavigationStyle">
-        <item name="android:background">@android:color/white</item>
-        <item name="android:elevation">16dp</item>
-    </style>
+
 </resources> 

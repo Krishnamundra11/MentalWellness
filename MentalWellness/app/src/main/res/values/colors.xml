@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="black">#FF000000</color>
-    <color name="white">#FFFFFFFF</color>
-    
+
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
     <!-- Music section colors -->
     <color name="colorOrange">#FFAC6D</color>
     <color name="colorBlue">#4A90E2</color>
@@ -12,4 +12,14 @@
     <!-- State selector for chip background -->
     <color name="chip_background_selected">#FFAC6D</color>
     <color name="chip_background_unselected">#FFFFFF</color>
+
+    <color name="primary">#3c415e</color>
+    <color name="primary_dark">#2f3547</color>
+    <color name="secondary">#90a4ae</color>
+    <color name="secondary_dark">#62757f</color>
+    <color name="background">#FBFBFB</color>
+    <color name="text_primary">#3c415e</color>
+    <color name="text_secondary">#90a4ae</color>
+
+
 </resources>
