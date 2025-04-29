@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment;
 
 import com.krishna.navbar.fragments.HomeFragment;
 import com.krishna.navbar.fragments.LandingFragment;
+import com.krishna.navbar.fragments.MusicMainFragment;
 import com.nafis.bottomnavigation.NafisBottomNavigation;
 
 import kotlin.Unit;
@@ -83,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
                         loadFragment(new HomeFragment());
                         break;
                     case ID_MUSIC:
-                        // Music icon - To be implemented
-                        Toast.makeText(MainActivity.this, "Music feature coming soon", Toast.LENGTH_SHORT).show();
+                        // Music icon - load MusicMainFragment
+                        loadFragment(new MusicMainFragment());
                         break;
                     case ID_SLEEP:
                         // Sleep icon - To be implemented

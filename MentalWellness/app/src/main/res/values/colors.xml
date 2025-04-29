@@ -2,4 +2,14 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    
+    <!-- Music section colors -->
+    <color name="colorOrange">#FFAC6D</color>
+    <color name="colorBlue">#4A90E2</color>
+    <color name="colorMint">#5CD6B1</color>
+    <color name="colorPink">#FF7A9E</color>
+    
+    <!-- State selector for chip background -->
+    <color name="chip_background_selected">#FFAC6D</color>
+    <color name="chip_background_unselected">#FFFFFF</color>
 </resources>
