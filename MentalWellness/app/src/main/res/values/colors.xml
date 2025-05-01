@@ -8,6 +8,11 @@
     <color name="colorBlue">#4A90E2</color>
     <color name="colorMint">#5CD6B1</color>
     <color name="colorPink">#FF7A9E</color>
+    <color name="peach">#E8B79F</color>
+    
+    <!-- Grey colors -->
+    <color name="grey">#757575</color>
+    <color name="light_grey">#E0E0E0</color>
     
     <!-- State selector for chip background -->
     <color name="chip_background_selected">#FFAC6D</color>

@@ -15,6 +15,7 @@ import androidx.core.view.WindowCompat;
 import androidx.core.view.WindowInsetsCompat;
 import androidx.fragment.app.Fragment;
 
+import com.krishna.navbar.fragments.FindExpertFragment;
 import com.krishna.navbar.fragments.HomeFragment;
 import com.krishna.navbar.fragments.LandingFragment;
 import com.krishna.navbar.fragments.MusicMainFragment;
@@ -27,10 +28,10 @@ import com.google.firebase.FirebaseApp;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int ID_HOME = 1;
-    private static final int ID_MEDITATION = 2;
-    private static final int ID_MUSIC = 3;
-    private static final int ID_SLEEP = 4;
+    private static final int ID_MUSIC = 1;
+    private static final int ID_MEDITATE = 2;
+    private static final int ID_HOME = 3;
+    private static final int ID_THERAPY = 4;
     private static final int ID_PROFILE = 5;
     
     NafisBottomNavigation bottomNavigation;
@@ -71,10 +72,10 @@ public class MainActivity extends AppCompatActivity {
         }
         
         // Set up bottom navigation
+        bottomNavigation.add(new NafisBottomNavigation.Model(ID_MUSIC, R.drawable.ic_music));
+        bottomNavigation.add(new NafisBottomNavigation.Model(ID_MEDITATE, R.drawable.ic_meditation));
         bottomNavigation.add(new NafisBottomNavigation.Model(ID_HOME, R.drawable.round_home_24));
-        bottomNavigation.add(new NafisBottomNavigation.Model(ID_MEDITATION, R.drawable.ic_om_symbol));
-        bottomNavigation.add(new NafisBottomNavigation.Model(ID_MUSIC, R.drawable.ic_play));
-        bottomNavigation.add(new NafisBottomNavigation.Model(ID_SLEEP, R.drawable.ic_sleep));
+        bottomNavigation.add(new NafisBottomNavigation.Model(ID_THERAPY, R.drawable.ic_therapy));
         bottomNavigation.add(new NafisBottomNavigation.Model(ID_PROFILE, R.drawable.ic_profile));
 
         // Programmatically select the Home tab with animation
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity {
                         // Home icon - load LandingFragment
                         loadFragment(new LandingFragment());
                         break;
-                    case ID_MEDITATION:
+                    case ID_MEDITATE:
                         // Meditation icon - load HomeFragment
                         loadFragment(new HomeFragment());
                         break;
@@ -99,9 +100,9 @@ public class MainActivity extends AppCompatActivity {
                         // Music icon - load MusicMainFragment
                         loadFragment(new MusicMainFragment());
                         break;
-                    case ID_SLEEP:
-                        // Sleep icon - To be implemented
-                        Toast.makeText(MainActivity.this, "Sleep feature coming soon", Toast.LENGTH_SHORT).show();
+                    case ID_THERAPY:
+                        // Therapy icon - load FindExpertFragment
+                        loadFragment(new FindExpertFragment());
                         break;
                     case ID_PROFILE:
                         // Launch ProfileActivity

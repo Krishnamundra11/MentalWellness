@@ -1,34 +1,71 @@
 package com.krishna.navbar.models;
 
 public class Therapist {
-    private String name, experience, expertise, languages, profileImage, sessionType, availability, nextSlot;
-    private double price;
+    private String name;
+    private String specialization;
+    private float rating;
+    private int reviewCount;
+    private String experience;
+    private String languages;
+    private String nextAvailable;
+    private int profileImageResourceId;
+    private boolean isFavorite;
 
-    // Constructor (empty for Firebase compatibility)
-    public Therapist() {}
-
-    public Therapist(String name, String experience, String expertise, String languages,
-                     String profileImage, String sessionType, String availability,
-                     String nextSlot, double price) {
+    public Therapist(String name, String specialization, float rating, int reviewCount, 
+                     String experience, String languages, String nextAvailable, 
+                     int profileImageResourceId) {
         this.name = name;
+        this.specialization = specialization;
+        this.rating = rating;
+        this.reviewCount = reviewCount;
         this.experience = experience;
-        this.expertise = expertise;
         this.languages = languages;
-        this.profileImage = profileImage;
-        this.sessionType = sessionType;
-        this.availability = availability;
-        this.nextSlot = nextSlot;
-        this.price = price;
+        this.nextAvailable = nextAvailable;
+        this.profileImageResourceId = profileImageResourceId;
+        this.isFavorite = false;
     }
 
-    // Getters & Setters
-    public String getName() { return name; }
-    public String getExperience() { return experience; }
-    public String getExpertise() { return expertise; }
-    public String getLanguages() { return languages; }
-    public String getProfileImage() { return profileImage; }
-    public String getSessionType() { return sessionType; }
-    public String getAvailability() { return availability; }
-    public String getNextSlot() { return nextSlot; }
-    public double getPrice() { return price; }
+    public String getName() {
+        return name;
+    }
+
+    public String getSpecialization() {
+        return specialization;
+    }
+
+    public float getRating() {
+        return rating;
+    }
+
+    public int getReviewCount() {
+        return reviewCount;
+    }
+
+    public String getExperience() {
+        return experience;
+    }
+
+    public String getLanguages() {
+        return languages;
+    }
+
+    public String getNextAvailable() {
+        return nextAvailable;
+    }
+
+    public int getProfileImageResourceId() {
+        return profileImageResourceId;
+    }
+
+    public boolean isFavorite() {
+        return isFavorite;
+    }
+
+    public void setFavorite(boolean favorite) {
+        isFavorite = favorite;
+    }
+
+    public void toggleFavorite() {
+        isFavorite = !isFavorite;
+    }
 }

@@ -20,7 +20,6 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.krishna.navbar.R;
 import com.krishna.navbar.adapters.DateAdapter;
 import com.krishna.navbar.adapters.TimeSlotAdapter;
-import com.krishna.navbar.dialogs.AppointmentConfirmationDialog;
 import com.krishna.navbar.models.DateItem;
 import com.krishna.navbar.models.Therapist;
 import com.krishna.navbar.models.TimeSlot;
@@ -216,7 +215,24 @@ public class BookAppointmentFragment extends Fragment {
         
         btnConfirm.setOnClickListener(v -> {
             if (selectedDate != null && selectedTimeSlot != null) {
-                showAppointmentConfirmationDialog();
+                // Navigate to booking confirmation screen
+                BookingConfirmationFragment confirmationFragment = BookingConfirmationFragment.newInstance(
+                        therapist,
+                        selectedDate.getDate(),
+                        selectedTimeSlot.getTime(),
+                        isOnlineSelected
+                );
+                
+                getParentFragmentManager().beginTransaction()
+                        .setCustomAnimations(
+                                R.anim.slide_in_right, // enter animation
+                                R.anim.fade_out,       // exit animation
+                                R.anim.fade_in,        // pop enter animation
+                                R.anim.slide_out_left  // pop exit animation
+                        )
+                        .replace(R.id.con, confirmationFragment)
+                        .addToBackStack(null)
+                        .commit();
             } else {
                 Toast.makeText(getContext(), "Please select a date and time", Toast.LENGTH_SHORT).show();
             }
@@ -229,32 +245,6 @@ public class BookAppointmentFragment extends Fragment {
                 Toast.makeText(getContext(), "Please select a date and time first", Toast.LENGTH_SHORT).show();
             }
         });
-    }
-    
-    private void showAppointmentConfirmationDialog() {
-        if (getContext() == null) return;
-        
-        AppointmentConfirmationDialog dialog = new AppointmentConfirmationDialog(
-                getContext(),
-                therapist,
-                selectedDate.getDate(),
-                selectedTimeSlot.getTime(),
-                new AppointmentConfirmationDialog.OnDialogActionListener() {
-                    @Override
-                    public void onDoneClicked() {
-                        // Return to previous screen
-                        getParentFragmentManager().popBackStack();
-                    }
-
-                    @Override
-                    public void onEditClicked() {
-                        // Stay on current screen to edit appointment
-                        // Do nothing, dialog will dismiss automatically
-                    }
-                }
-        );
-        
-        dialog.show();
     }
     
     private void updateSessionType(boolean isOnline) {
