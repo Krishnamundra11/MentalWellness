@@ -3,7 +3,7 @@ package com.krishna.navbar.models;
 /**
  * Model class for items in the landing page carousel
  */
-public class CarouselItem {
+public class    CarouselItem {
     private String title;
     private String subtitle;
     private int imageResourceId;

@@ -1,6 +1,7 @@
 package com.krishna.navbar;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -20,6 +21,11 @@ public class SignupActivity extends AppCompatActivity {
     private TextView loginText;
     private FirebaseAuth mAuth;
     private LoadingDialog loadingDialog;
+    private SharedPreferences prefs;
+    private static final String PREFS_NAME = "AuthPrefs";
+    private static final String KEY_AUTH_STATE = "auth_state";
+    private static final String STATE_SIGNUP = "signup";
+    private static final String STATE_COMPLETED = "completed";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,6 +35,12 @@ public class SignupActivity extends AppCompatActivity {
         // Initialize Firebase Auth
         mAuth = FirebaseAuth.getInstance();
         loadingDialog = new LoadingDialog(this);
+        
+        // Initialize SharedPreferences
+        prefs = getSharedPreferences(PREFS_NAME, MODE_PRIVATE);
+        
+        // Set auth state to signup
+        prefs.edit().putString(KEY_AUTH_STATE, STATE_SIGNUP).apply();
 
         // Initialize views
         nameEditText = findViewById(R.id.nameEditText);
@@ -47,6 +59,8 @@ public class SignupActivity extends AppCompatActivity {
         
         loginText.setOnClickListener(v -> {
             if (!loadingDialog.isShowing()) {
+                // Clear auth state when returning to login
+                prefs.edit().remove(KEY_AUTH_STATE).apply();
                 finish();
             }
         });
@@ -99,7 +113,9 @@ public class SignupActivity extends AppCompatActivity {
                 .addOnCompleteListener(this, task -> {
                     if (task.isSuccessful()) {
                         // Sign up success
-                        startActivity(new Intent(SignupActivity.this, MainActivity.class));
+                        // Update auth state to profile completion
+                        prefs.edit().putString(KEY_AUTH_STATE, "profile_completion").apply();
+                        startActivity(new Intent(SignupActivity.this, UserInfoActivity.class));
                         finishAffinity(); // Close all activities in the stack
                     } else {
                         // Sign up failed
@@ -120,5 +136,12 @@ public class SignupActivity extends AppCompatActivity {
                     // Dismiss loading dialog
                     loadingDialog.dismiss();
                 });
+    }
+    
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        // Do not clear the auth state on destroy as we want to remember
+        // where the user was in the flow if they close the app
     }
 } 

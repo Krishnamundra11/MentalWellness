@@ -1,50 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_margin="16dp"
-    app:cardCornerRadius="16dp"
-    app:cardElevation="8dp">
+    android:layout_height="match_parent"
+    android:padding="16dp">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="20dp">
+        android:gravity="center_horizontal">
+
+        <TextView
+            android:id="@+id/welcomeText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Complete Your Profile"
+            android:textSize="28sp"
+            android:textStyle="bold"
+            android:textColor="#3498db"
+            android:gravity="center"
+            android:layout_marginBottom="8dp"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Edit Profile"
-            android:textColor="#2C3E50"
-            android:textSize="22sp"
-            android:textStyle="bold"
+            android:text="Tell us a bit about yourself"
+            android:textSize="16sp"
+            android:textColor="#7F8C8D"
             android:gravity="center"
-            android:layout_marginBottom="20dp" />
+            android:layout_marginBottom="24dp"/>
 
         <FrameLayout
-            android:layout_width="110dp"
-            android:layout_height="110dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="20dp">
+            android:layout_width="150dp"
+            android:layout_height="150dp"
+            android:layout_marginBottom="24dp">
 
             <de.hdodenhof.circleimageview.CircleImageView
-                android:id="@+id/dialogProfileImage"
+                android:id="@+id/profileImageView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:src="@drawable/default_profile"
                 app:civ_border_width="2dp"
-                app:civ_border_color="#3498db" />
+                app:civ_border_color="#FF000000"/>
 
             <ImageButton
-                android:id="@+id/changeImageButton"
-                android:layout_width="36dp"
-                android:layout_height="36dp"
+                android:id="@+id/btnChangeImage"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
                 android:layout_gravity="bottom|end"
                 android:background="@drawable/circle_background"
                 android:src="@android:drawable/ic_menu_camera"
-                android:padding="8dp" />
+                android:padding="8dp"/>
         </FrameLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -54,10 +61,10 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/nameEditText"
+                android:id="@+id/editTextName"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Name" />
+                android:hint="Name"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -67,11 +74,11 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/ageEditText"
+                android:id="@+id/editTextAge"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Age"
-                android:inputType="number" />
+                android:inputType="number"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -81,11 +88,11 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
             <AutoCompleteTextView
-                android:id="@+id/genderDropdown"
+                android:id="@+id/editTextGender"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="none"
-                android:hint="Gender" />
+                android:hint="Gender"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
@@ -95,56 +102,47 @@
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/emailEditText"
+                android:id="@+id/editTextEmail"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
-                android:inputType="textEmailAddress" />
+                android:inputType="textEmailAddress"/>
         </com.google.android.material.textfield.TextInputLayout>
 
         <com.google.android.material.textfield.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="24dp"
             style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
             <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/professionEditText"
+                android:id="@+id/editTextProfession"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Profession" />
+                android:hint="Profession"/>
         </com.google.android.material.textfield.TextInputLayout>
 
-        <LinearLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:layout_height="wrap_content">
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/cancelButton"
-                android:layout_width="0dp"
+                android:id="@+id/btnSaveProfile"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginEnd="6dp"
-                android:text="Cancel"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
+                android:text="Continue"
+                android:paddingTop="12dp"
+                android:paddingBottom="12dp"
+                android:backgroundTint="#3498db"/>
 
             <ProgressBar
                 android:id="@+id/progressBar"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginHorizontal="8dp"
-                android:visibility="gone" />
+                android:layout_width="30dp"
+                android:layout_height="30dp"
+                android:layout_gravity="center"
+                android:visibility="gone"
+                android:indeterminateTint="#FFFFFF"/>
+        </FrameLayout>
 
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/saveButton"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:layout_marginStart="6dp"
-                android:text="Save"
-                android:backgroundTint="#3498db" />
-        </LinearLayout>
     </LinearLayout>
-</com.google.android.material.card.MaterialCardView> 
+</ScrollView> 

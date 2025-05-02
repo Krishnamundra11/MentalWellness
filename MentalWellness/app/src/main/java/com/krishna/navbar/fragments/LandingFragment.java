@@ -5,7 +5,9 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -46,6 +48,17 @@ public class LandingFragment extends Fragment {
     private TextView tvTherapyStart;
     private TextView tvPlaylistsStart;
     private TextView tvLibraryStart;
+    private LinearLayout scoreCardsContainer;
+    private MaterialCardView cardScoreResult;
+    private TextView tvScoreTitle;
+    private TextView tvScoreValue;
+    private TextView tvScoreMessage;
+    private TextView tvTipsHeader;
+    private TextView tvTip1;
+    private TextView tvTip2;
+    private TextView tvTip3;
+    private TextView tvTip4;
+    private Button btnRetakeQuiz;
 
     // Data
     private List<CarouselItem> carouselItems;
@@ -69,6 +82,9 @@ public class LandingFragment extends Fragment {
         
         // Set up click listeners for all interactive elements
         setupClickListeners();
+        
+        // Set up fragment result listener for questionnaire results
+        setupFragmentResultListener();
         
         return view;
     }
@@ -100,6 +116,19 @@ public class LandingFragment extends Fragment {
         tvTherapyStart = view.findViewById(R.id.tv_therapy_start);
         tvPlaylistsStart = view.findViewById(R.id.tv_playlists_start);
         tvLibraryStart = view.findViewById(R.id.tv_library_start);
+
+        // Score Card
+        scoreCardsContainer = view.findViewById(R.id.score_cards_container);
+        cardScoreResult = view.findViewById(R.id.card_score_result);
+        tvScoreTitle = view.findViewById(R.id.tv_score_title);
+        tvScoreValue = view.findViewById(R.id.tv_score_value);
+        tvScoreMessage = view.findViewById(R.id.tv_score_message);
+        tvTipsHeader = view.findViewById(R.id.tv_tips_header);
+        tvTip1 = view.findViewById(R.id.tv_tip_1);
+        tvTip2 = view.findViewById(R.id.tv_tip_2);
+        tvTip3 = view.findViewById(R.id.tv_tip_3);
+        tvTip4 = view.findViewById(R.id.tv_tip_4);
+        btnRetakeQuiz = view.findViewById(R.id.btn_retake_quiz);
     }
     
     /**
@@ -196,7 +225,32 @@ public class LandingFragment extends Fragment {
         // Carousel items
         carouselAdapter.setOnItemClickListener(position -> {
             CarouselItem item = carouselItems.get(position);
-            Toast.makeText(getContext(), "Selected: " + item.getTitle(), Toast.LENGTH_SHORT).show();
+            String type;
+            switch (position) {
+                case 0:
+                    type = "academic";
+                    break;
+                case 1:
+                    type = "stress";
+                    break;
+                case 2:
+                    type = "sleep";
+                    break;
+                default:
+                    type = "academic";
+            }
+            
+            // Start the QuestionnaireFragment with the appropriate type
+            Bundle args = new Bundle();
+            args.putString("type", type);
+            QuestionnaireFragment questionnaireFragment = new QuestionnaireFragment();
+            questionnaireFragment.setArguments(args);
+            
+            getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.con, questionnaireFragment, null)
+                .addToBackStack(null)
+                .commit();
         });
         
         // Service Cards
@@ -213,5 +267,101 @@ public class LandingFragment extends Fragment {
         cardTherapy.setOnClickListener(v -> tvTherapyStart.performClick());
         cardPlaylists.setOnClickListener(v -> tvPlaylistsStart.performClick());
         cardLibrary.setOnClickListener(v -> tvLibraryStart.performClick());
+    }
+
+    /**
+     * Set up fragment result listener to receive questionnaire results
+     */
+    private void setupFragmentResultListener() {
+        getParentFragmentManager().setFragmentResultListener("questionnaire_result", this, (requestKey, result) -> {
+            // Extract results from the bundle
+            String type = result.getString("type", "academic");
+            int score = result.getInt("score", 0);
+            ArrayList<String> tips = result.getStringArrayList("tips");
+            
+            // Display result based on type
+            displayQuestionnaireResult(type, score, tips);
+        });
+    }
+
+    /**
+     * Display questionnaire result with score and tips
+     */
+    private void displayQuestionnaireResult(String type, int score, ArrayList<String> tips) {
+        // Configure the card title based on type
+        String titleText = "Your ";
+        int cardColor = 0;
+        switch (type) {
+            case "academic":
+                titleText += "Academic Score";
+                cardColor = Color.parseColor("#E8F5E9");
+                break;
+            case "stress":
+                titleText += "Stress Score";
+                cardColor = Color.parseColor("#E3F2FD");
+                break;
+            case "sleep":
+                titleText += "Sleep Score";
+                cardColor = Color.parseColor("#FFF3E0");
+                break;
+        }
+        tvScoreTitle.setText(titleText);
+        cardScoreResult.setCardBackgroundColor(cardColor);
+        
+        // Set the score value
+        tvScoreValue.setText(String.valueOf(score));
+        
+        // Set appropriate message based on score
+        if (score < 40) {
+            if (type.equals("stress")) {
+                tvScoreMessage.setText("You are feeling pretty stressed today...");
+            } else if (type.equals("sleep")) {
+                tvScoreMessage.setText("You have slept less today...");
+            } else {
+                tvScoreMessage.setText("You are having difficulty focusing...");
+            }
+        } else if (score < 75) {
+            if (type.equals("stress")) {
+                tvScoreMessage.setText("Your stress level is manageable...");
+            } else if (type.equals("sleep")) {
+                tvScoreMessage.setText("Your sleep quality is average...");
+            } else {
+                tvScoreMessage.setText("You are maintaining acceptable focus...");
+            }
+        } else {
+            if (type.equals("stress")) {
+                tvScoreMessage.setText("You are feeling calm today...");
+            } else if (type.equals("sleep")) {
+                tvScoreMessage.setText("You have slept well today...");
+            } else {
+                tvScoreMessage.setText("You are performing better today...");
+            }
+        }
+        
+        // Set tips
+        if (tips != null && tips.size() >= 4) {
+            tvTip1.setText(tips.get(0));
+            tvTip2.setText(tips.get(1));
+            tvTip3.setText(tips.get(2));
+            tvTip4.setText(tips.get(3));
+        }
+        
+        // Set retake quiz button click listener
+        btnRetakeQuiz.setOnClickListener(v -> {
+            // Start the QuestionnaireFragment again with the same type
+            Bundle args = new Bundle();
+            args.putString("type", type);
+            QuestionnaireFragment questionnaireFragment = new QuestionnaireFragment();
+            questionnaireFragment.setArguments(args);
+            
+            getParentFragmentManager()
+                .beginTransaction()
+                .replace(R.id.con, questionnaireFragment, null)
+                .addToBackStack(null)
+                .commit();
+        });
+        
+        // Show the score container
+        scoreCardsContainer.setVisibility(View.VISIBLE);
     }
 } 

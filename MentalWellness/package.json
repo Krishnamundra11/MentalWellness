@@ -1,0 +1,12 @@
+{
+  "name": "mental-wellness-data-generator",
+  "version": "1.0.0",
+  "description": "Script to generate test data for Mental Wellness app",
+  "main": "firestore_data_generator.js",
+  "scripts": {
+    "generate": "node firestore_data_generator.js"
+  },
+  "dependencies": {
+    "firebase-admin": "^11.10.1"
+  }
+} 

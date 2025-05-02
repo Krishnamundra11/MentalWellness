@@ -39,10 +39,10 @@
                     android:layout_height="wrap_content"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="8dp"
-                    android:src="@drawable/ic_edit"
+                    android:src="@android:drawable/ic_menu_edit"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:tint="#A8E4A0" />
+                    app:tint="#3498db" />
 
                 <TextView
                     android:id="@+id/nameText"
@@ -138,8 +138,8 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_arrow_forward"
-                    app:tint="#A8E4A0" />
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="#3498db" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -176,8 +176,8 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_arrow_forward"
-                    app:tint="#A8E4A0" />
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="#3498db" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -207,15 +207,15 @@
                     android:layout_height="wrap_content"
                     android:layout_marginStart="16dp"
                     android:layout_weight="1"
-                    android:text="Favorite music and content"
+                    android:text="Your favorite music and content"
                     android:textColor="#2C3E50"
                     android:textSize="16sp" />
 
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_arrow_forward"
-                    app:tint="#A8E4A0" />
+                    android:src="@android:drawable/ic_media_play"
+                    app:tint="#3498db" />
             </LinearLayout>
         </com.google.android.material.card.MaterialCardView>
 
@@ -225,101 +225,212 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginTop="24dp"
-            android:text="Your Scores"
+            android:text="Your Today's Scores"
             android:textColor="#2C3E50"
             android:textSize="18sp"
             android:textStyle="bold"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@id/musicCard" />
 
-        <LinearLayout
+        <HorizontalScrollView
+            android:id="@+id/scoreScrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="16dp"
-            android:orientation="horizontal"
+            android:scrollbars="none"
             app:layout_constraintTop_toBottomOf="@id/scoreTitle">
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
+            <LinearLayout
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                app:cardBackgroundColor="#A8E4A0"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                android:orientation="horizontal">
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                <!-- Academic Score Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/academicScoreCard"
+                    android:layout_width="160dp"
+                    android:layout_height="180dp"
+                    android:layout_marginEnd="12dp"
+                    app:cardBackgroundColor="#A8E4A0"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Academic Score"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="25%"
-                        android:textColor="#FFFFFF"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Academic Score"
+                            android:textColor="#2C3E50"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="Performing well..."
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <ProgressBar
+                            android:id="@+id/academicProgressBar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/circular_progress_background"
+                            android:indeterminate="false"
+                            android:max="100"
+                            android:progress="25"
+                            android:progressDrawable="@drawable/circular_progress" />
 
-            <com.google.android.material.card.MaterialCardView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                app:cardBackgroundColor="#FF6B6B"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="2dp">
+                        <TextView
+                            android:id="@+id/academicScoreText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="25%"
+                            android:textColor="#2C3E50"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
 
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
+                        <TextView
+                            android:id="@+id/academicScoreDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Performing well"
+                            android:textColor="#2C3E50"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="Stress Score"
-                        android:textColor="#FFFFFF"
-                        android:textSize="16sp" />
+                <!-- Stress Score Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/stressScoreCard"
+                    android:layout_width="160dp"
+                    android:layout_height="180dp"
+                    android:layout_marginEnd="12dp"
+                    app:cardBackgroundColor="#FFA8A8"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="60%"
-                        android:textColor="#FFFFFF"
-                        android:textSize="24sp"
-                        android:textStyle="bold" />
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="4dp"
-                        android:text="You need to improvise..."
-                        android:textColor="#FFFFFF"
-                        android:textSize="14sp" />
-                </LinearLayout>
-            </com.google.android.material.card.MaterialCardView>
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Stress Score"
+                            android:textColor="#2C3E50"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ProgressBar
+                            android:id="@+id/stressProgressBar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/circular_progress_background"
+                            android:indeterminate="false"
+                            android:max="100"
+                            android:progress="80"
+                            android:progressDrawable="@drawable/circular_progress_stress" />
+
+                        <TextView
+                            android:id="@+id/stressScoreText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="80%"
+                            android:textColor="#2C3E50"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/stressScoreDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Need to improve"
+                            android:textColor="#2C3E50"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+                <!-- Sleep Score Card -->
+                <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/sleepScoreCard"
+                    android:layout_width="160dp"
+                    android:layout_height="180dp"
+                    app:cardBackgroundColor="#A8C4FF"
+                    app:cardCornerRadius="12dp"
+                    app:cardElevation="2dp">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center"
+                        android:orientation="vertical"
+                        android:padding="16dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Sleep Score"
+                            android:textColor="#2C3E50"
+                            android:textSize="16sp"
+                            android:textStyle="bold" />
+
+                        <ProgressBar
+                            android:id="@+id/sleepProgressBar"
+                            style="?android:attr/progressBarStyleHorizontal"
+                            android:layout_width="80dp"
+                            android:layout_height="80dp"
+                            android:layout_marginTop="8dp"
+                            android:background="@drawable/circular_progress_background"
+                            android:indeterminate="false"
+                            android:max="100"
+                            android:progress="65"
+                            android:progressDrawable="@drawable/circular_progress_sleep" />
+
+                        <TextView
+                            android:id="@+id/sleepScoreText"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="8dp"
+                            android:text="65%"
+                            android:textColor="#2C3E50"
+                            android:textSize="20sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/sleepScoreDescription"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Good sleep quality"
+                            android:textColor="#2C3E50"
+                            android:textSize="12sp" />
+                    </LinearLayout>
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <!-- Bottom Navigation -->
+        <LinearLayout
+            android:id="@+id/bottomNavContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="24dp"
+            android:background="#FFFFFF"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@id/scoreScrollView">
+
+            <!-- Bottom Nav Placeholder -->
         </LinearLayout>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

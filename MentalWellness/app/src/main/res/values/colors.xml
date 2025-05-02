@@ -10,6 +10,11 @@
     <color name="colorPink">#FF7A9E</color>
     <color name="peach">#E8B79F</color>
     
+    <!-- Peach color variants for wellness screens -->
+    <color name="light_peach">#FFE6DD</color>
+    <color name="medium_peach">#FFAC8C</color>
+    <color name="dark_peach">#FF8A65</color>
+    
     <!-- Grey colors -->
     <color name="grey">#757575</color>
     <color name="light_grey">#E0E0E0</color>
