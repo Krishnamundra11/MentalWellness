@@ -14,8 +14,11 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.Therapist;
+import com.krishna.navbar.utils.FirestoreHelper;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 public class TherapistProfileFragment extends Fragment {
 
@@ -33,18 +36,12 @@ public class TherapistProfileFragment extends Fragment {
     private boolean isFavorite = false;
     private boolean isAboutExpanded = false;
     private boolean isOnlineSelected = true;
-    
-    public static TherapistProfileFragment newInstance(Therapist therapist) {
+    private String therapistId;
+
+    public static TherapistProfileFragment newInstance(String therapistId) {
         TherapistProfileFragment fragment = new TherapistProfileFragment();
         Bundle args = new Bundle();
-        args.putString("name", therapist.getName());
-        args.putString("specialization", therapist.getSpecialization());
-        args.putFloat("rating", therapist.getRating());
-        args.putInt("reviewCount", therapist.getReviewCount());
-        args.putString("experience", therapist.getExperience());
-        args.putString("languages", therapist.getLanguages());
-        args.putBoolean("isFavorite", therapist.isFavorite());
-        args.putInt("profileImage", therapist.getProfileImageResourceId());
+        args.putString("therapistId", therapistId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -53,159 +50,117 @@ public class TherapistProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_therapist_profile, container, false);
-        
         extractArguments();
         initViews(view);
         setupListeners();
-        populateData();
-        
+        fetchTherapistFromFirestore();
         return view;
     }
-    
+
     private void extractArguments() {
         if (getArguments() != null) {
-            Bundle args = getArguments();
-            String name = args.getString("name", "Dr. Sarah Anderson");
-            String specialization = args.getString("specialization", "Clinical Psychologist");
-            float rating = args.getFloat("rating", 4.9f);
-            int reviewCount = args.getInt("reviewCount", 128);
-            String experience = args.getString("experience", "8+ years");
-            String languages = args.getString("languages", "English, Hindi and Bengali");
-            isFavorite = args.getBoolean("isFavorite", false);
-            int profileImageResourceId = args.getInt("profileImage", R.drawable.therapist_3);
-            
-            therapist = new Therapist(name, specialization, rating, reviewCount, 
-                    experience, languages, "", profileImageResourceId);
-            therapist.setFavorite(isFavorite);
-        } else {
-            // Default data if no arguments passed
-            therapist = new Therapist(
-                    "Dr. Sarah Anderson",
-                    "Clinical Psychologist",
-                    4.9f,
-                    128,
-                    "8+ years",
-                    "English, Hindi and Bengali",
-                    "",
-                    R.drawable.therapist_3
-            );
+            therapistId = getArguments().getString("therapistId");
         }
     }
-    
+
+    private void fetchTherapistFromFirestore() {
+        if (therapistId == null) {
+            Toast.makeText(getContext(), "Therapist not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        FirestoreHelper helper = new FirestoreHelper();
+        helper.getTherapistById(therapistId)
+            .addOnSuccessListener(documentSnapshot -> {
+                therapist = documentSnapshot.toObject(Therapist.class);
+                if (therapist != null) {
+                    therapist.setId(documentSnapshot.getId());
+                    populateData();
+                } else {
+                    Toast.makeText(getContext(), "Therapist not found", Toast.LENGTH_SHORT).show();
+                }
+            })
+            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to load therapist", Toast.LENGTH_SHORT).show());
+    }
+
     private void initViews(View view) {
-        // Top bar
         btnBack = view.findViewById(R.id.btn_back);
         btnFavorite = view.findViewById(R.id.btn_favorite);
-        
-        // Profile info
         imgProfile = view.findViewById(R.id.img_profile);
         tvName = view.findViewById(R.id.tv_name);
         tvSpecialization = view.findViewById(R.id.tv_specialization);
         tvRating = view.findViewById(R.id.tv_rating);
         tvReviews = view.findViewById(R.id.tv_reviews);
-        
-        // Consultation mode
         btnOnline = view.findViewById(R.id.btn_online);
         btnInPerson = view.findViewById(R.id.btn_in_person);
-        
-        // Stats
         tvExperience = view.findViewById(R.id.tv_experience);
         tvRatingStat = view.findViewById(R.id.tv_rating_stat);
         tvReviewsCount = view.findViewById(R.id.tv_reviews_count);
-        
-        // About me
         tvAboutMe = view.findViewById(R.id.tv_about_me);
         tvReadMore = view.findViewById(R.id.tv_read_more);
-        
-        // Consultation info
         tvConsultationFee = view.findViewById(R.id.tv_consultation_fee);
         tvSessionDuration = view.findViewById(R.id.tv_session_duration);
-        
-        // CTA button
         btnBookAppointment = view.findViewById(R.id.btn_book_appointment);
     }
-    
+
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
-        
-        btnFavorite.setOnClickListener(v -> {
-            toggleFavorite();
-        });
-        
-        btnOnline.setOnClickListener(v -> {
-            setConsultationMode(true);
-        });
-        
-        btnInPerson.setOnClickListener(v -> {
-            setConsultationMode(false);
-        });
-        
-        tvReadMore.setOnClickListener(v -> {
-            toggleAboutExpansion();
-        });
-        
+        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnFavorite.setOnClickListener(v -> toggleFavorite());
+        btnOnline.setOnClickListener(v -> setConsultationMode(true));
+        btnInPerson.setOnClickListener(v -> setConsultationMode(false));
+        tvReadMore.setOnClickListener(v -> toggleAboutExpansion());
         btnBookAppointment.setOnClickListener(v -> {
-            // Navigate to booking screen
-            BookAppointmentFragment bookingFragment = BookAppointmentFragment.newInstance(therapist);
-            getParentFragmentManager().beginTransaction()
-                .replace(R.id.con, bookingFragment)
-                .addToBackStack(null)
-                .commit();
+            if (therapist != null) {
+                BookAppointmentFragment bookingFragment = BookAppointmentFragment.newInstance(therapist.getId());
+                getParentFragmentManager().beginTransaction()
+                    .replace(R.id.con, bookingFragment)
+                    .addToBackStack(null)
+                    .commit();
+            }
         });
     }
-    
+
     private void populateData() {
-        // Set profile data
-        imgProfile.setImageResource(therapist.getProfileImageResourceId());
+        if (therapist == null) return;
+        // Load image from URL if available
+        if (therapist.getProfileImageUrl() != null && !therapist.getProfileImageUrl().isEmpty()) {
+            Glide.with(this).load(therapist.getProfileImageUrl()).into(imgProfile);
+        } else {
+            imgProfile.setImageResource(R.drawable.placeholder_therapist);
+        }
         tvName.setText(therapist.getName());
-        tvSpecialization.setText(therapist.getSpecialization());
+        tvSpecialization.setText(therapist.getSpecialization() != null ? therapist.getSpecialization().toString() : "");
         tvRating.setText(String.valueOf(therapist.getRating()));
         tvReviews.setText("(" + therapist.getReviewCount() + " reviews)");
-        
-        // Set stats
-        String experience = therapist.getExperience().replace(" years", "").replace(" year", "");
-        tvExperience.setText(experience);
+        tvExperience.setText(therapist.getExperience());
         tvRatingStat.setText(String.valueOf(therapist.getRating()));
         tvReviewsCount.setText(String.valueOf(therapist.getReviewCount()));
-        
+        tvAboutMe.setText(therapist.getAboutMe());
+        tvConsultationFee.setText("₹" + therapist.getFee());
+        // You can set session duration if you have it in Firestore
         // Set favorite icon
         updateFavoriteIcon();
-        
-        // Set consultation mode (online by default)
         setConsultationMode(isOnlineSelected);
     }
-    
+
     private void toggleFavorite() {
         isFavorite = !isFavorite;
         updateFavoriteIcon();
-        
-        String message = isFavorite ? 
-                "Added " + therapist.getName() + " to favorites" : 
-                "Removed " + therapist.getName() + " from favorites";
+        String message = isFavorite ? "Added " + (therapist != null ? therapist.getName() : "") + " to favorites" : "Removed " + (therapist != null ? therapist.getName() : "") + " from favorites";
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
     }
-    
+
     private void updateFavoriteIcon() {
-        btnFavorite.setImageResource(isFavorite ? 
-                R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
+        btnFavorite.setImageResource(isFavorite ? R.drawable.ic_heart_filled : R.drawable.ic_heart_outline);
     }
-    
+
     private void setConsultationMode(boolean isOnline) {
         isOnlineSelected = isOnline;
-        
-        // Update button backgrounds
-        btnOnline.setBackgroundResource(isOnline ? 
-                R.drawable.bg_button_active : R.drawable.bg_button_inactive);
-                
-        btnInPerson.setBackgroundResource(!isOnline ? 
-                R.drawable.bg_button_active : R.drawable.bg_button_inactive);
+        btnOnline.setBackgroundResource(isOnline ? R.drawable.bg_button_active : R.drawable.bg_button_inactive);
+        btnInPerson.setBackgroundResource(!isOnline ? R.drawable.bg_button_active : R.drawable.bg_button_inactive);
     }
-    
+
     private void toggleAboutExpansion() {
         isAboutExpanded = !isAboutExpanded;
-        
         if (isAboutExpanded) {
             tvAboutMe.setMaxLines(Integer.MAX_VALUE);
             tvAboutMe.setEllipsize(null);

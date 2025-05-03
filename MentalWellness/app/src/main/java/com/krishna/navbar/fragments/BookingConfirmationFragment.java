@@ -8,17 +8,21 @@ import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.bumptech.glide.Glide;
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.Therapist;
+import com.krishna.navbar.utils.FirestoreHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Objects;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -34,6 +38,8 @@ public class BookingConfirmationFragment extends Fragment {
     
     // Data
     private Therapist therapist;
+    private String therapistId;
+    private String therapistName;
     private Date appointmentDate;
     private String appointmentTime;
     private boolean isOnlineSession;
@@ -44,9 +50,8 @@ public class BookingConfirmationFragment extends Fragment {
                                                           boolean isOnlineSession) {
         BookingConfirmationFragment fragment = new BookingConfirmationFragment();
         Bundle args = new Bundle();
-        args.putString("name", therapist.getName());
-        args.putString("specialization", therapist.getSpecialization());
-        args.putInt("profileImage", therapist.getProfileImageResourceId());
+        args.putString("therapistId", therapist.getId());
+        args.putString("therapistName", therapist.getName());
         args.putSerializable("appointmentDate", appointmentDate);
         args.putString("appointmentTime", appointmentTime);
         args.putBoolean("isOnlineSession", isOnlineSession);
@@ -61,7 +66,13 @@ public class BookingConfirmationFragment extends Fragment {
         
         extractArguments();
         initViews(view);
-        setupData();
+        
+        // Show appointment details right away while we fetch therapist data
+        setupAppointmentDetails();
+        
+        // Fetch therapist details from Firestore
+        fetchTherapistData();
+        
         setupListeners();
         
         return view;
@@ -71,11 +82,9 @@ public class BookingConfirmationFragment extends Fragment {
         if (getArguments() != null) {
             Bundle args = getArguments();
             
-            // Extract therapist data
-            String name = args.getString("name", "Dr. Sarah Anderson");
-            String specialization = args.getString("specialization", "Clinical Psychologist");
-            int profileImageResourceId = args.getInt("profileImage", R.drawable.placeholder_therapist);
-            therapist = new Therapist(name, specialization, 0, 0, "", "", "", profileImageResourceId);
+            // Extract therapist ID instead of full details
+            therapistId = args.getString("therapistId");
+            therapistName = args.getString("therapistName", "Dr. Sarah Anderson");
             
             // Extract appointment details
             appointmentDate = (Date) args.getSerializable("appointmentDate");
@@ -86,49 +95,46 @@ public class BookingConfirmationFragment extends Fragment {
             appointmentTime = args.getString("appointmentTime", "10:30 AM");
             isOnlineSession = args.getBoolean("isOnlineSession", true);
         } else {
-            // Default data if no arguments passed
-            therapist = new Therapist(
-                    "Dr. Sarah Anderson",
-                    "Clinical Psychologist",
-                    0, 0,
-                    "",
-                    "",
-                    "",
-                    R.drawable.placeholder_therapist
-            );
+            therapistName = "Dr. Sarah Anderson";
             appointmentDate = new Date();
             appointmentTime = "10:30 AM";
             isOnlineSession = true;
         }
     }
     
+    private void fetchTherapistData() {
+        if (therapistId != null) {
+            FirestoreHelper helper = new FirestoreHelper();
+            helper.getTherapistById(therapistId)
+                .addOnSuccessListener(documentSnapshot -> {
+                    therapist = documentSnapshot.toObject(Therapist.class);
+                    if (therapist != null) {
+                        therapist.setId(documentSnapshot.getId());
+                        setupTherapistData();
+                    }
+                })
+                .addOnFailureListener(e -> {
+                    Toast.makeText(getContext(), "Failed to load therapist details", Toast.LENGTH_SHORT).show();
+                });
+        }
+    }
+    
     private void initViews(View view) {
-        // Top bar
         btnBack = view.findViewById(R.id.btn_back);
-        
-        // Success icon
         ivSuccess = view.findViewById(R.id.iv_success);
-        
-        // Therapist info
         ivTherapist = view.findViewById(R.id.iv_therapist);
         tvTherapistName = view.findViewById(R.id.tv_therapist_name);
         tvTherapistSpecialty = view.findViewById(R.id.tv_therapist_specialty);
-        
-        // Session details
         tvSessionDate = view.findViewById(R.id.tv_session_date);
         tvSessionTime = view.findViewById(R.id.tv_session_time);
         tvSessionType = view.findViewById(R.id.tv_session_type);
-        
-        // Action buttons
         btnViewAppointments = view.findViewById(R.id.btn_view_appointments);
         btnBackHome = view.findViewById(R.id.btn_back_home);
     }
     
-    private void setupData() {
-        // Set therapist info
-        tvTherapistName.setText(therapist.getName());
-        tvTherapistSpecialty.setText(therapist.getSpecialization());
-        ivTherapist.setImageResource(therapist.getProfileImageResourceId());
+    private void setupAppointmentDetails() {
+        // Set therapist name initially (we'll update the full details later)
+        tvTherapistName.setText(therapistName);
         
         // Set appointment details
         SimpleDateFormat dateFormat = new SimpleDateFormat("EEEE, MMM d", Locale.getDefault());
@@ -138,6 +144,29 @@ public class BookingConfirmationFragment extends Fragment {
         
         // Start success icon animation
         animateSuccessIcon();
+    }
+    
+    private void setupTherapistData() {
+        if (therapist == null) return;
+        
+        // Update therapist info now that we have full details
+        tvTherapistName.setText(therapist.getName() != null ? therapist.getName() : "");
+        
+        // Handle specialization (now a List<String>)
+        if (therapist.getSpecialization() != null && !therapist.getSpecialization().isEmpty()) {
+            tvTherapistSpecialty.setText(therapist.getSpecialization().get(0));
+        } else {
+            tvTherapistSpecialty.setText("");
+        }
+        
+        // Load image from URL
+        if (therapist.getProfileImageUrl() != null && !therapist.getProfileImageUrl().isEmpty()) {
+            Glide.with(getContext())
+                .load(therapist.getProfileImageUrl())
+                .into(ivTherapist);
+        } else {
+            ivTherapist.setImageResource(R.drawable.placeholder_therapist);
+        }
     }
     
     private void animateSuccessIcon() {
@@ -155,9 +184,7 @@ public class BookingConfirmationFragment extends Fragment {
     }
     
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
+        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
         
         btnViewAppointments.setOnClickListener(v -> {
             // Navigate to appointments screen (to be implemented)

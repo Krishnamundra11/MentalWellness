@@ -8,6 +8,14 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.firestore.QuerySnapshot;
 import com.krishna.navbar.models.QuestionnaireResponse;
+import com.krishna.navbar.models.Therapist;
+import com.krishna.navbar.models.TherapistBooking;
+import com.google.android.gms.tasks.OnFailureListener;
+import com.google.android.gms.tasks.OnSuccessListener;
+import com.google.firebase.firestore.CollectionReference;
+import com.google.firebase.firestore.Query;
+import java.util.List;
+import java.util.Map;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -20,6 +28,8 @@ public class FirestoreHelper {
     
     private static final String USERS_COLLECTION = "users";
     private static final String QUESTIONNAIRES_COLLECTION = "questionnaires";
+    private static final String THERAPISTS_COLLECTION = "therapists";
+    private static final String BOOKINGS_SUBCOLLECTION = "therapist_bookings";
     
     private FirebaseFirestore db;
     private FirebaseAuth mAuth;
@@ -164,5 +174,62 @@ public class FirestoreHelper {
                     .whereEqualTo("category", category)
                     .get();
         }
+    }
+
+    // Fetch all therapists with optional filters
+    public Task<QuerySnapshot> getTherapists(String specialization, String language, String mode) {
+        CollectionReference ref = db.collection(THERAPISTS_COLLECTION);
+        Query query = ref;
+        if (specialization != null && !specialization.isEmpty())
+            query = query.whereArrayContains("specialization", specialization);
+        if (language != null && !language.isEmpty())
+            query = query.whereArrayContains("languages", language);
+        if (mode != null && !mode.isEmpty())
+            query = query.whereArrayContains("modes", mode);
+        return query.get();
+    }
+
+    // Fetch therapist details by ID
+    public Task<DocumentSnapshot> getTherapistById(String therapistId) {
+        return db.collection(THERAPISTS_COLLECTION).document(therapistId).get();
+    }
+
+    // Fetch available slots for a therapist (returns the whole doc, slots are in availableSlots)
+    public Task<DocumentSnapshot> getAvailableSlots(String therapistId) {
+        return db.collection(THERAPISTS_COLLECTION).document(therapistId).get();
+    }
+
+    // Book an appointment: add to user subcollection, remove slot from therapist
+    public void bookAppointment(String userId, TherapistBooking booking, String therapistId, String date, String time, OnSuccessListener<Void> onSuccess, OnFailureListener onFailure) {
+        db.collection(USERS_COLLECTION)
+            .document(userId)
+            .collection(BOOKINGS_SUBCOLLECTION)
+            .add(booking)
+            .addOnSuccessListener(documentReference -> {
+                DocumentReference therapistRef = db.collection(THERAPISTS_COLLECTION).document(therapistId);
+                db.runTransaction(transaction -> {
+                    DocumentSnapshot snapshot = transaction.get(therapistRef);
+                    Map<String, Object> data = snapshot.getData();
+                    if (data == null) return null;
+                    Map<String, List<String>> availableSlots = (Map<String, List<String>>) data.get("availableSlots");
+                    if (availableSlots != null && availableSlots.containsKey(date)) {
+                        List<String> slots = availableSlots.get(date);
+                        slots.remove(time);
+                        availableSlots.put(date, slots);
+                        transaction.update(therapistRef, "availableSlots", availableSlots);
+                    }
+                    return null;
+                }).addOnSuccessListener(result -> onSuccess.onSuccess(null))
+                  .addOnFailureListener(onFailure);
+            })
+            .addOnFailureListener(onFailure);
+    }
+
+    // Fetch all appointments for a user
+    public Task<QuerySnapshot> getUserBookings(String userId) {
+        return db.collection(USERS_COLLECTION)
+                .document(userId)
+                .collection(BOOKINGS_SUBCOLLECTION)
+                .get();
     }
 } 

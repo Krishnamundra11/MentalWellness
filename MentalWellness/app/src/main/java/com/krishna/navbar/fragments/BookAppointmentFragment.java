@@ -17,12 +17,17 @@ import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.krishna.navbar.R;
 import com.krishna.navbar.adapters.DateAdapter;
 import com.krishna.navbar.adapters.TimeSlotAdapter;
 import com.krishna.navbar.models.DateItem;
 import com.krishna.navbar.models.Therapist;
 import com.krishna.navbar.models.TimeSlot;
+import com.krishna.navbar.models.TherapistBooking;
+import com.krishna.navbar.utils.FirestoreHelper;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.bumptech.glide.Glide;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -30,6 +35,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -51,14 +57,14 @@ public class BookAppointmentFragment extends Fragment {
     private boolean isOnlineSelected = true;
     private DateItem selectedDate;
     private TimeSlot selectedTimeSlot;
-    
-    public static BookAppointmentFragment newInstance(Therapist therapist) {
+    private String therapistId;
+    private List<DateItem> dateItems;
+    private List<TimeSlot> timeSlots;
+
+    public static BookAppointmentFragment newInstance(String therapistId) {
         BookAppointmentFragment fragment = new BookAppointmentFragment();
         Bundle args = new Bundle();
-        args.putString("name", therapist.getName());
-        args.putString("specialization", therapist.getSpecialization());
-        args.putString("experience", therapist.getExperience());
-        args.putInt("profileImage", therapist.getProfileImageResourceId());
+        args.putString("therapistId", therapistId);
         fragment.setArguments(args);
         return fragment;
     }
@@ -67,177 +73,169 @@ public class BookAppointmentFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_appointment, container, false);
-        
         extractArguments();
         initViews(view);
-        setupData();
+        fetchTherapistFromFirestore();
         setupListeners();
-        
         return view;
     }
-    
+
     private void extractArguments() {
         if (getArguments() != null) {
-            Bundle args = getArguments();
-            String name = args.getString("name", "Dr. Sarah Anderson");
-            String specialization = args.getString("specialization", "Clinical Psychologist");
-            String experience = args.getString("experience", "8+ years");
-            int profileImageResourceId = args.getInt("profileImage", R.drawable.placeholder_therapist);
-            
-            therapist = new Therapist(name, specialization, 0, 0, 
-                    experience, "", "", profileImageResourceId);
-        } else {
-            // Default data if no arguments passed
-            therapist = new Therapist(
-                    "Dr. Sarah Anderson",
-                    "Clinical Psychologist",
-                    0, 0,
-                    "8+ years",
-                    "",
-                    "",
-                    R.drawable.placeholder_therapist
-            );
+            therapistId = getArguments().getString("therapistId");
         }
     }
-    
+
+    private void fetchTherapistFromFirestore() {
+        if (therapistId == null) {
+            Toast.makeText(getContext(), "Therapist not found", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        FirestoreHelper helper = new FirestoreHelper();
+        helper.getTherapistById(therapistId)
+            .addOnSuccessListener(documentSnapshot -> {
+                therapist = documentSnapshot.toObject(Therapist.class);
+                if (therapist != null) {
+                    therapist.setId(documentSnapshot.getId());
+                    setupData();
+                } else {
+                    Toast.makeText(getContext(), "Therapist not found", Toast.LENGTH_SHORT).show();
+                }
+            })
+            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to load therapist", Toast.LENGTH_SHORT).show());
+    }
+
     private void initViews(View view) {
-        // Top bar
         btnBack = view.findViewById(R.id.btn_back);
-        
-        // Therapist info
         ivTherapist = view.findViewById(R.id.iv_therapist);
         tvTherapistName = view.findViewById(R.id.tv_therapist_name);
         tvTherapistSpecialty = view.findViewById(R.id.tv_therapist_specialty);
         tvTherapistExperience = view.findViewById(R.id.tv_therapist_experience);
-        
-        // Session type
         btnOnline = view.findViewById(R.id.btn_online);
         btnInPerson = view.findViewById(R.id.btn_in_person);
-        
-        // Date and time selection
         rvDates = view.findViewById(R.id.rv_dates);
         rvTimeSlots = view.findViewById(R.id.rv_time_slots);
-        
-        // Action buttons
         btnConfirm = view.findViewById(R.id.btn_confirm);
         btnAddCalendar = view.findViewById(R.id.btn_add_calendar);
+        
+        // Initialize lists to prevent null pointer exceptions
+        dateItems = new ArrayList<>();
+        timeSlots = new ArrayList<>();
     }
-    
+
     private void setupData() {
-        // Set therapist info
+        if (therapist == null) return;
         tvTherapistName.setText(therapist.getName());
-        tvTherapistSpecialty.setText(therapist.getSpecialization());
+        tvTherapistSpecialty.setText(therapist.getSpecialization() != null ? therapist.getSpecialization().toString() : "");
         tvTherapistExperience.setText(therapist.getExperience());
-        ivTherapist.setImageResource(therapist.getProfileImageResourceId());
         
-        // Set session type (online by default)
+        if (therapist.getProfileImageUrl() != null && !therapist.getProfileImageUrl().isEmpty()) {
+            Glide.with(this).load(therapist.getProfileImageUrl()).into(ivTherapist);
+        } else {
+            ivTherapist.setImageResource(R.drawable.placeholder_therapist);
+        }
+        
         updateSessionType(isOnlineSelected);
-        
-        // Setup date recycler view
         setupDateRecyclerView();
-        
-        // Setup time slots recycler view
-        setupTimeSlotRecyclerView();
     }
-    
+
     private void setupDateRecyclerView() {
-        List<DateItem> dateItems = generateNextFiveDays();
+        dateItems = generateNextFiveDays();
         dateAdapter = new DateAdapter(dateItems);
         dateAdapter.setOnDateSelectedListener(dateItem -> {
             selectedDate = dateItem;
-            // Refresh time slots if needed based on the selected date
+            fetchAvailableSlotsForDate();
         });
-        
         rvDates.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
         rvDates.setAdapter(dateAdapter);
-        
-        // Select the first date by default
         if (!dateItems.isEmpty()) {
             selectedDate = dateItems.get(0);
             dateAdapter.selectDate(0);
+            fetchAvailableSlotsForDate();
         }
     }
-    
+
+    private void fetchAvailableSlotsForDate() {
+        if (therapist == null || selectedDate == null) return;
+        FirestoreHelper helper = new FirestoreHelper();
+        helper.getAvailableSlots(therapist.getId())
+            .addOnSuccessListener(documentSnapshot -> {
+                Therapist t = documentSnapshot.toObject(Therapist.class);
+                if (t != null && t.getAvailableSlots() != null) {
+                    String dateKey = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate.getDate());
+                    List<String> slots = t.getAvailableSlots().get(dateKey);
+                    if (slots != null && !slots.isEmpty()) {
+                        timeSlots = new ArrayList<>();
+                        for (String slot : slots) {
+                            timeSlots.add(new TimeSlot(slot));
+                        }
+                    } else {
+                        timeSlots = new ArrayList<>();
+                    }
+                    setupTimeSlotRecyclerView();
+                }
+            });
+    }
+
     private void setupTimeSlotRecyclerView() {
-        List<TimeSlot> timeSlots = generateTimeSlots();
+        if (timeSlots == null) timeSlots = new ArrayList<>();
         timeSlotAdapter = new TimeSlotAdapter(timeSlots);
         timeSlotAdapter.setOnTimeSlotSelectedListener(timeSlot -> {
             selectedTimeSlot = timeSlot;
         });
-        
         GridLayoutManager layoutManager = new GridLayoutManager(getContext(), 2);
         rvTimeSlots.setLayoutManager(layoutManager);
         rvTimeSlots.setAdapter(timeSlotAdapter);
     }
-    
+
     private List<DateItem> generateNextFiveDays() {
         List<DateItem> dateItems = new ArrayList<>();
         Calendar calendar = Calendar.getInstance();
         SimpleDateFormat dayFormat = new SimpleDateFormat("EEE", Locale.getDefault());
         SimpleDateFormat dayNumberFormat = new SimpleDateFormat("dd", Locale.getDefault());
-        
         for (int i = 0; i < 5; i++) {
             Date date = calendar.getTime();
             String dayName = dayFormat.format(date).toUpperCase();
             String dayNumber = dayNumberFormat.format(date);
-            
             dateItems.add(new DateItem(dayName, dayNumber, date));
             calendar.add(Calendar.DAY_OF_MONTH, 1);
         }
-        
         return dateItems;
     }
-    
-    private List<TimeSlot> generateTimeSlots() {
-        List<TimeSlot> timeSlots = new ArrayList<>();
-        
-        // Generate some sample time slots
-        timeSlots.add(new TimeSlot("09:00 AM"));
-        timeSlots.add(new TimeSlot("10:30 AM"));
-        timeSlots.add(new TimeSlot("1:30 PM"));
-        timeSlots.add(new TimeSlot("3:30 PM"));
-        
-        return timeSlots;
-    }
-    
+
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
-        });
-        
-        btnOnline.setOnClickListener(v -> {
-            updateSessionType(true);
-        });
-        
-        btnInPerson.setOnClickListener(v -> {
-            updateSessionType(false);
-        });
-        
+        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnOnline.setOnClickListener(v -> updateSessionType(true));
+        btnInPerson.setOnClickListener(v -> updateSessionType(false));
         btnConfirm.setOnClickListener(v -> {
-            if (selectedDate != null && selectedTimeSlot != null) {
-                // Navigate to booking confirmation screen
-                BookingConfirmationFragment confirmationFragment = BookingConfirmationFragment.newInstance(
-                        therapist,
-                        selectedDate.getDate(),
-                        selectedTimeSlot.getTime(),
-                        isOnlineSelected
+            if (selectedDate != null && selectedTimeSlot != null && therapist != null) {
+                String userId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                String dateStr = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(selectedDate.getDate());
+                String mode = isOnlineSelected ? "Online" : "In-Person";
+                TherapistBooking booking = new TherapistBooking(
+                        therapist.getId(), therapist.getName(), dateStr, selectedTimeSlot.getTime(), mode, "Confirmed");
+                FirestoreHelper helper = new FirestoreHelper();
+                helper.bookAppointment(userId, booking, therapist.getId(), dateStr, selectedTimeSlot.getTime(),
+                        aVoid -> {
+                            BookingConfirmationFragment confirmationFragment = BookingConfirmationFragment.newInstance(
+                                    therapist, selectedDate.getDate(), selectedTimeSlot.getTime(), isOnlineSelected);
+                            getParentFragmentManager().beginTransaction()
+                                    .setCustomAnimations(
+                                            R.anim.slide_in_right,
+                                            R.anim.fade_out,
+                                            R.anim.fade_in,
+                                            R.anim.slide_out_left
+                                    )
+                                    .replace(R.id.con, confirmationFragment)
+                                    .addToBackStack(null)
+                                    .commit();
+                        },
+                        e -> Toast.makeText(getContext(), "Failed to book appointment", Toast.LENGTH_SHORT).show()
                 );
-                
-                getParentFragmentManager().beginTransaction()
-                        .setCustomAnimations(
-                                R.anim.slide_in_right, // enter animation
-                                R.anim.fade_out,       // exit animation
-                                R.anim.fade_in,        // pop enter animation
-                                R.anim.slide_out_left  // pop exit animation
-                        )
-                        .replace(R.id.con, confirmationFragment)
-                        .addToBackStack(null)
-                        .commit();
             } else {
                 Toast.makeText(getContext(), "Please select a date and time", Toast.LENGTH_SHORT).show();
             }
         });
-        
         btnAddCalendar.setOnClickListener(v -> {
             if (selectedDate != null && selectedTimeSlot != null) {
                 Toast.makeText(getContext(), "Appointment added to calendar", Toast.LENGTH_SHORT).show();
@@ -246,15 +244,13 @@ public class BookAppointmentFragment extends Fragment {
             }
         });
     }
-    
+
     private void updateSessionType(boolean isOnline) {
         isOnlineSelected = isOnline;
-        
         btnOnline.setBackgroundTintList(getResources().getColorStateList(
                 isOnline ? R.color.peach : R.color.background));
         btnOnline.setTextColor(getResources().getColor(
                 isOnline ? R.color.white : R.color.black));
-                
         btnInPerson.setBackgroundTintList(getResources().getColorStateList(
                 !isOnline ? R.color.peach : R.color.background));
         btnInPerson.setTextColor(getResources().getColor(

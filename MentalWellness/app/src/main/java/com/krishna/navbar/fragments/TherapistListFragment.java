@@ -19,10 +19,12 @@ import androidx.recyclerview.widget.RecyclerView;
 import com.krishna.navbar.R;
 import com.krishna.navbar.adapters.TherapistAdapter;
 import com.krishna.navbar.models.Therapist;
+import com.krishna.navbar.utils.FirestoreHelper;
+import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Locale;
 
 public class TherapistListFragment extends Fragment implements TherapistAdapter.OnTherapistClickListener {
 
@@ -45,7 +47,7 @@ public class TherapistListFragment extends Fragment implements TherapistAdapter.
         
         initViews(view);
         setupListeners();
-        loadDummyData();
+        loadTherapistsFromFirestore();
         setupRecyclerView();
         
         return view;
@@ -97,47 +99,30 @@ public class TherapistListFragment extends Fragment implements TherapistAdapter.
         });
     }
     
-    private void loadDummyData() {
-        allTherapists = new ArrayList<>();
-        
-        // Add dummy data
-        allTherapists.add(new Therapist(
-                "Dr. Sarah Johnson",
-                "Clinical Psychologist",
-                4.9f,
-                120,
-                "15+ years",
-                "English, Spanish",
-                "Today, 3:00 PM",
-                R.drawable.therapist_1
-        ));
-        
-        allTherapists.add(new Therapist(
-                "Dr. Michael Chen",
-                "Psychiatrist",
-                4.8f,
-                95,
-                "10+ years",
-                "English, Mandarin",
-                "Tomorrow, 10:00 AM",
-                R.drawable.therapist_2
-        ));
-        
-        allTherapists.add(new Therapist(
-                "Dr. Sarah Anderson",
-                "Psychiatrist",
-                4.8f,
-                95,
-                "10+ years",
-                "English, Mandarin",
-                "Tomorrow, 10:00 AM",
-                R.drawable.therapist_3
-        ));
-        
-        filteredTherapists = new ArrayList<>(allTherapists);
+    private void loadTherapistsFromFirestore() {
+        FirestoreHelper helper = new FirestoreHelper();
+        // For demo, only specialization filter is used. You can add language/mode as needed.
+        String filter = currentCategory.equals("all") ? null : currentCategory;
+        helper.getTherapists(filter, null, null)
+            .addOnSuccessListener(queryDocumentSnapshots -> {
+                allTherapists = new ArrayList<>();
+                for (DocumentSnapshot doc : queryDocumentSnapshots) {
+                    Therapist therapist = doc.toObject(Therapist.class);
+                    if (therapist != null) {
+                        therapist.setId(doc.getId());
+                        allTherapists.add(therapist);
+                    }
+                }
+                filteredTherapists = new ArrayList<>(allTherapists);
+                adapter.updateList(filteredTherapists);
+            })
+            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to load therapists", Toast.LENGTH_SHORT).show());
     }
     
     private void setupRecyclerView() {
+        if (filteredTherapists == null) {
+            filteredTherapists = new ArrayList<>();
+        }
         adapter = new TherapistAdapter(getContext(), filteredTherapists, this);
         rvTherapists.setAdapter(adapter);
     }
@@ -155,30 +140,28 @@ public class TherapistListFragment extends Fragment implements TherapistAdapter.
         btnPsychiatrists.setBackgroundResource(category.equals("psychiatrist") ? 
                 R.drawable.bg_tab_active : R.drawable.bg_tab_inactive);
         
-        filterTherapists();
+        loadTherapistsFromFirestore();
     }
     
     private void filterTherapists() {
-        filteredTherapists = allTherapists.stream()
-                .filter(therapist -> {
-                    boolean categoryMatch = currentCategory.equals("all") || 
-                            therapist.getSpecialization().toLowerCase().contains(currentCategory);
-                    
-                    boolean searchMatch = searchQuery.isEmpty() || 
-                            therapist.getName().toLowerCase().contains(searchQuery) || 
-                            therapist.getSpecialization().toLowerCase().contains(searchQuery);
-                    
-                    return categoryMatch && searchMatch;
-                })
-                .collect(Collectors.toList());
-        
+        filteredTherapists = new ArrayList<>();
+        for (Therapist therapist : allTherapists) {
+            boolean categoryMatch = currentCategory.equals("all") || 
+                (therapist.getSpecialization() != null && therapist.getSpecialization().toString().toLowerCase(Locale.ROOT).contains(currentCategory));
+            boolean searchMatch = searchQuery.isEmpty() || 
+                (therapist.getName() != null && therapist.getName().toLowerCase(Locale.ROOT).contains(searchQuery)) ||
+                (therapist.getSpecialization() != null && therapist.getSpecialization().toString().toLowerCase(Locale.ROOT).contains(searchQuery));
+            if (categoryMatch && searchMatch) {
+                filteredTherapists.add(therapist);
+            }
+        }
         adapter.updateList(filteredTherapists);
     }
 
     @Override
     public void onProfileClick(Therapist therapist, int position) {
-        // Navigate to TherapistProfileFragment with the selected therapist
-        TherapistProfileFragment profileFragment = TherapistProfileFragment.newInstance(therapist);
+        // Navigate to TherapistProfileFragment with the selected therapist ID
+        TherapistProfileFragment profileFragment = TherapistProfileFragment.newInstance(therapist.getId());
         
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.con, profileFragment)
@@ -188,7 +171,8 @@ public class TherapistListFragment extends Fragment implements TherapistAdapter.
 
     @Override
     public void onFavoriteToggle(Therapist therapist, int position) {
-        String message = therapist.isFavorite() ? 
+        boolean isFavorite = adapter.isFavorite(therapist);
+        String message = isFavorite ? 
                 "Added " + therapist.getName() + " to favorites" : 
                 "Removed " + therapist.getName() + " from favorites";
         Toast.makeText(getContext(), message, Toast.LENGTH_SHORT).show();
