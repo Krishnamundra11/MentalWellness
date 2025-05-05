@@ -27,9 +27,6 @@ public class SleepAidActivity extends AppCompatActivity {
     private FloatingActionButton btnNext;
     private ImageButton btnBack;
     private ImageButton btnMenu;
-    private ImageButton btnVolume;
-    private ImageButton btnMusic;
-    private ImageButton btnNotification;
     
     // Timer variables
     private CountDownTimer countDownTimer;
@@ -58,9 +55,6 @@ public class SleepAidActivity extends AppCompatActivity {
         btnNext = findViewById(R.id.btn_next);
         btnBack = findViewById(R.id.btn_back);
         btnMenu = findViewById(R.id.btn_menu);
-        btnVolume = findViewById(R.id.btn_volume);
-        btnMusic = findViewById(R.id.btn_music);
-        btnNotification = findViewById(R.id.btn_notification);
     }
     
     private void setupClickListeners() {
@@ -86,16 +80,6 @@ public class SleepAidActivity extends AppCompatActivity {
             
         btnNext.setOnClickListener(v -> 
             Toast.makeText(this, "Next meditation step", Toast.LENGTH_SHORT).show());
-            
-        // Audio controls
-        btnVolume.setOnClickListener(v -> 
-            Toast.makeText(this, "Volume control", Toast.LENGTH_SHORT).show());
-            
-        btnMusic.setOnClickListener(v -> 
-            Toast.makeText(this, "Music selection", Toast.LENGTH_SHORT).show());
-            
-        btnNotification.setOnClickListener(v -> 
-            Toast.makeText(this, "Notification settings", Toast.LENGTH_SHORT).show());
     }
     
     private void startTimer() {
