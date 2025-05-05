@@ -60,29 +60,32 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="630dp"
             android:padding="16dp">
 
             <!-- Question Text -->
+
+            <!-- Question Image -->
+
             <TextView
                 android:id="@+id/tv_question_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
+                android:layout_marginTop="8dp"
                 android:gravity="center"
-                android:text="How well did you sleep last night?"
+                android:text="How often you felt nervous, anxious or on edge due to academic pressure?"
                 android:textColor="#3C415E"
                 android:textSize="22sp"
                 android:textStyle="bold"
                 app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.0"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
 
-            <!-- Question Image -->
             <ImageView
                 android:id="@+id/iv_question_image"
-                android:layout_width="146dp"
-                android:layout_height="119dp"
+                android:layout_width="134dp"
+                android:layout_height="107dp"
                 android:layout_marginTop="16dp"
                 android:contentDescription="Question illustration"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -102,7 +105,7 @@
                 app:layout_constraintTop_toBottomOf="@id/iv_question_image">
 
                 <LinearLayout
-                    android:id="@+id/answer_options_container"
+                    android:id="@+id/radio_group_options"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:orientation="vertical"
@@ -128,6 +131,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/tv_excellent"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
@@ -144,12 +148,12 @@
                             android:id="@+id/check_excellent"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:contentDescription="Selected"
                             android:src="@android:drawable/ic_menu_camera"
                             android:visibility="invisible"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:contentDescription="Selected" />
+                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Good -->
@@ -172,6 +176,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/tv_good"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
@@ -188,12 +193,12 @@
                             android:id="@+id/check_good"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:contentDescription="Selected"
                             android:src="@android:drawable/ic_menu_camera"
                             android:visibility="invisible"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:contentDescription="Selected" />
+                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Okay -->
@@ -216,6 +221,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/tv_okay"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
@@ -232,12 +238,12 @@
                             android:id="@+id/check_okay"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:contentDescription="Selected"
                             android:src="@android:drawable/ic_menu_camera"
                             android:visibility="invisible"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:contentDescription="Selected" />
+                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Poor -->
@@ -260,6 +266,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/tv_poor"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
@@ -276,12 +283,12 @@
                             android:id="@+id/check_poor"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:contentDescription="Selected"
                             android:src="@android:drawable/ic_menu_camera"
                             android:visibility="invisible"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:contentDescription="Selected" />
+                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
 
                     <!-- Very Poor -->
@@ -303,6 +310,7 @@
                             app:layout_constraintTop_toTopOf="parent" />
 
                         <TextView
+                            android:id="@+id/tv_very_poor"
                             android:layout_width="0dp"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="12dp"
@@ -319,12 +327,12 @@
                             android:id="@+id/check_very_poor"
                             android:layout_width="24dp"
                             android:layout_height="24dp"
+                            android:contentDescription="Selected"
                             android:src="@android:drawable/ic_menu_camera"
                             android:visibility="invisible"
                             app:layout_constraintBottom_toBottomOf="parent"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="parent"
-                            android:contentDescription="Selected" />
+                            app:layout_constraintTop_toTopOf="parent" />
                     </androidx.constraintlayout.widget.ConstraintLayout>
                 </LinearLayout>
             </ScrollView>
@@ -332,11 +340,11 @@
             <!-- Next/Submit Button -->
             <Button
                 android:id="@+id/btn_next"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_width="333dp"
+                android:layout_height="52dp"
                 android:layout_marginBottom="8dp"
                 android:background="@drawable/gradient_button_background"
-                android:paddingVertical="12dp"
+                android:paddingVertical="8dp"
                 android:text="Next Question"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"

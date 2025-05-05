@@ -9,4 +9,4 @@ public class TherapyActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_therapy);
     }
-} 
+}

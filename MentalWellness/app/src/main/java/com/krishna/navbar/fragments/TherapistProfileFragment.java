@@ -50,16 +50,35 @@ public class TherapistProfileFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_therapist_profile, container, false);
-        extractArguments();
+        
+        // Hide bottom navigation when this fragment is shown
+        if (getActivity() != null) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.GONE);
+            }
+        }
+        
+        // Extract therapist ID from arguments
+        if (getArguments() != null) {
+            therapistId = getArguments().getString("therapistId");
+        }
+        
         initViews(view);
         setupListeners();
         fetchTherapistFromFirestore();
         return view;
     }
 
-    private void extractArguments() {
-        if (getArguments() != null) {
-            therapistId = getArguments().getString("therapistId");
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ensure we restore the bottom navigation visibility for other fragments
+        if (getActivity() != null && !isRemoving()) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.VISIBLE);
+            }
         }
     }
 

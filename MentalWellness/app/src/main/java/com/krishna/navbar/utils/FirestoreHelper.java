@@ -232,4 +232,13 @@ public class FirestoreHelper {
                 .collection(BOOKINGS_SUBCOLLECTION)
                 .get();
     }
+    
+    // Update the calendar status of a booking
+    public Task<Void> updateBookingCalendarStatus(String userId, String bookingId, boolean addedToCalendar) {
+        return db.collection(USERS_COLLECTION)
+                .document(userId)
+                .collection(BOOKINGS_SUBCOLLECTION)
+                .document(bookingId)
+                .update("addedToCalendar", addedToCalendar);
+    }
 } 

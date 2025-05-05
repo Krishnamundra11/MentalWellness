@@ -215,8 +215,13 @@ public class LandingFragment extends Fragment {
         ivNotification.setOnClickListener(v -> 
             Toast.makeText(getContext(), "Notifications", Toast.LENGTH_SHORT).show());
             
-        ivUserAvatar.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "User Profile", Toast.LENGTH_SHORT).show());
+        ivUserAvatar.setOnClickListener(v -> {
+            // Navigate to ProfileFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new ProfileFragment())
+                .addToBackStack(null)
+                .commit();
+        });
         
         // Mood Check
         btnMoodAction.setOnClickListener(v -> 
@@ -248,25 +253,94 @@ public class LandingFragment extends Fragment {
             
             getParentFragmentManager()
                 .beginTransaction()
-                .replace(R.id.con, questionnaireFragment, null)
+                .replace(R.id.con, questionnaireFragment)
                 .addToBackStack(null)
                 .commit();
         });
         
-        // Service Cards
-        tvTherapyStart.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Book a Therapy", Toast.LENGTH_SHORT).show());
-            
-        tvPlaylistsStart.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Calming Playlists", Toast.LENGTH_SHORT).show());
-            
-        tvLibraryStart.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Wellness Library", Toast.LENGTH_SHORT).show());
-            
-        // Make whole cards clickable
-        cardTherapy.setOnClickListener(v -> tvTherapyStart.performClick());
-        cardPlaylists.setOnClickListener(v -> tvPlaylistsStart.performClick());
-        cardLibrary.setOnClickListener(v -> tvLibraryStart.performClick());
+        // Service cards
+        cardTherapy.setOnClickListener(v -> {
+            // Navigate to FindExpertFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new FindExpertFragment())
+                .addToBackStack(null)
+                .commit();
+        });
+        
+        cardPlaylists.setOnClickListener(v -> {
+            // Navigate to MusicMainFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new MusicMainFragment())
+                .addToBackStack(null)
+                .commit();
+        });
+        
+        cardLibrary.setOnClickListener(v -> {
+            // Navigate to LibraryFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new LibraryFragment())
+                .addToBackStack(null)
+                .commit();
+        });
+        
+        cardInspiration.setOnClickListener(v -> {
+            // Navigate to a future InspirationFragment or show toast if not implemented
+            Toast.makeText(getContext(), "Daily inspiration coming soon", Toast.LENGTH_SHORT).show();
+        });
+        
+        // Action buttons
+        tvTherapyStart.setOnClickListener(v -> {
+            // Navigate to FindExpertFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new FindExpertFragment())
+                .addToBackStack(null)
+                .commit();
+        });
+        
+        tvPlaylistsStart.setOnClickListener(v -> {
+            // Navigate to MusicMainFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new MusicMainFragment())
+                .addToBackStack(null)
+                .commit();
+        });
+        
+        tvLibraryStart.setOnClickListener(v -> {
+            // Navigate to LibraryFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new LibraryFragment())
+                .addToBackStack(null)
+                .commit();
+        });
+        
+        // Retake quiz button
+        if (btnRetakeQuiz != null) {
+            btnRetakeQuiz.setOnClickListener(v -> {
+                // Get the category from the current score card
+                String category = tvScoreTitle.getText().toString().toLowerCase();
+                if (category.contains("academic")) {
+                    category = "academic";
+                } else if (category.contains("stress")) {
+                    category = "stress";
+                } else if (category.contains("sleep")) {
+                    category = "sleep";
+                } else {
+                    category = "academic"; // default
+                }
+                
+                // Start the questionnaire with the same category
+                Bundle args = new Bundle();
+                args.putString("type", category);
+                QuestionnaireFragment questionnaireFragment = new QuestionnaireFragment();
+                questionnaireFragment.setArguments(args);
+                
+                getParentFragmentManager()
+                    .beginTransaction()
+                    .replace(R.id.con, questionnaireFragment)
+                    .addToBackStack(null)
+                    .commit();
+            });
+        }
     }
 
     /**
@@ -345,21 +419,6 @@ public class LandingFragment extends Fragment {
             tvTip3.setText(tips.get(2));
             tvTip4.setText(tips.get(3));
         }
-        
-        // Set retake quiz button click listener
-        btnRetakeQuiz.setOnClickListener(v -> {
-            // Start the QuestionnaireFragment again with the same type
-            Bundle args = new Bundle();
-            args.putString("type", type);
-            QuestionnaireFragment questionnaireFragment = new QuestionnaireFragment();
-            questionnaireFragment.setArguments(args);
-            
-            getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.con, questionnaireFragment, null)
-                .addToBackStack(null)
-                .commit();
-        });
         
         // Show the score container
         scoreCardsContainer.setVisibility(View.VISIBLE);

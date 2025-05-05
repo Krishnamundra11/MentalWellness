@@ -19,6 +19,7 @@ import com.krishna.navbar.fragments.FindExpertFragment;
 import com.krishna.navbar.fragments.HomeFragment;
 import com.krishna.navbar.fragments.LandingFragment;
 import com.krishna.navbar.fragments.MusicMainFragment;
+import com.krishna.navbar.fragments.ProfileFragment;
 import com.nafis.bottomnavigation.NafisBottomNavigation;
 
 import kotlin.Unit;
@@ -59,6 +60,15 @@ public class MainActivity extends AppCompatActivity {
 
         // Setup bottom navigation
         setupBottomNavigation();
+        
+        // Check if we have a selected tab from intent (coming from other activities)
+        if (getIntent().hasExtra("selected_tab_id")) {
+            int selectedTabId = getIntent().getIntExtra("selected_tab_id", ID_HOME);
+            // Show the selected tab
+            bottomNavigation.show(selectedTabId, true);
+            // Load the appropriate fragment
+            loadFragmentForTabId(selectedTabId);
+        }
 
         FirebaseApp.initializeApp(this);
     }
@@ -105,13 +115,36 @@ public class MainActivity extends AppCompatActivity {
                         loadFragment(new FindExpertFragment());
                         break;
                     case ID_PROFILE:
-                        // Launch ProfileActivity
-                        startActivity(new Intent(MainActivity.this, ProfileActivity.class));
+                        // Load ProfileFragment instead of launching ProfileActivity
+                        loadFragment(new ProfileFragment());
                         break;
                 }
                 return null;
             }
         });
+    }
+    
+    /**
+     * Load appropriate fragment based on tab ID
+     */
+    private void loadFragmentForTabId(int tabId) {
+        switch (tabId) {
+            case ID_HOME:
+                loadFragment(new LandingFragment());
+                break;
+            case ID_MEDITATE:
+                loadFragment(new HomeFragment());
+                break;
+            case ID_MUSIC:
+                loadFragment(new MusicMainFragment());
+                break;
+            case ID_THERAPY:
+                loadFragment(new FindExpertFragment());
+                break;
+            case ID_PROFILE:
+                loadFragment(new ProfileFragment());
+                break;
+        }
     }
     
     private void loadFragment(Fragment fragment) {

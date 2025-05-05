@@ -1,6 +1,8 @@
 package com.krishna.navbar.fragments;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.provider.CalendarContract;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,11 +75,32 @@ public class BookAppointmentFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_book_appointment, container, false);
+        
+        // Hide bottom navigation when this fragment is shown
+        if (getActivity() != null) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.GONE);
+            }
+        }
+        
         extractArguments();
         initViews(view);
         fetchTherapistFromFirestore();
         setupListeners();
         return view;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ensure we restore the bottom navigation visibility for other fragments
+        if (getActivity() != null && !isRemoving()) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.VISIBLE);
+            }
+        }
     }
 
     private void extractArguments() {
@@ -237,12 +260,53 @@ public class BookAppointmentFragment extends Fragment {
             }
         });
         btnAddCalendar.setOnClickListener(v -> {
-            if (selectedDate != null && selectedTimeSlot != null) {
-                Toast.makeText(getContext(), "Appointment added to calendar", Toast.LENGTH_SHORT).show();
+            if (selectedDate != null && selectedTimeSlot != null && therapist != null) {
+                addEventToCalendar();
             } else {
                 Toast.makeText(getContext(), "Please select a date and time first", Toast.LENGTH_SHORT).show();
             }
         });
+    }
+
+    private void addEventToCalendar() {
+        try {
+            // Create calendar intent
+            Intent intent = new Intent(Intent.ACTION_INSERT);
+            intent.setData(CalendarContract.Events.CONTENT_URI);
+            
+            // Set calendar event details
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(selectedDate.getDate());
+            
+            // Parse time (assuming format like "10:00 AM")
+            String[] timeParts = selectedTimeSlot.getTime().split(":");
+            int hour = Integer.parseInt(timeParts[0]);
+            int minute = Integer.parseInt(timeParts[1].split(" ")[0]);
+            boolean isPM = selectedTimeSlot.getTime().toUpperCase().contains("PM");
+            
+            if (isPM && hour < 12) {
+                hour += 12;
+            } else if (!isPM && hour == 12) {
+                hour = 0;
+            }
+            
+            cal.set(Calendar.HOUR_OF_DAY, hour);
+            cal.set(Calendar.MINUTE, minute);
+            
+            intent.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, cal.getTimeInMillis());
+            
+            // Set duration to 1 hour
+            cal.add(Calendar.HOUR, 1);
+            intent.putExtra(CalendarContract.EXTRA_EVENT_END_TIME, cal.getTimeInMillis());
+            
+            intent.putExtra(CalendarContract.Events.TITLE, "Therapy Session with " + therapist.getName());
+            intent.putExtra(CalendarContract.Events.DESCRIPTION, (isOnlineSelected ? "Online" : "In-Person") + " therapy session");
+            
+            startActivity(intent);
+            Toast.makeText(getContext(), "Adding to calendar...", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Failed to add to calendar: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void updateSessionType(boolean isOnline) {

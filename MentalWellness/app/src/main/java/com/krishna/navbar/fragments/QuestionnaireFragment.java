@@ -26,6 +26,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.QuestionnaireResponse;
 import com.krishna.navbar.utils.FirestoreHelper;
+import com.krishna.navbar.utils.ScoreUtils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -57,6 +58,21 @@ public class QuestionnaireFragment extends Fragment {
     private ImageView ivQuestionImage;
     private TextView tvQuestionText;
     private Button btnNext;
+    private View radioGroup;
+    
+    // Option UI components
+    private View optionVeryPoor;
+    private View optionPoor;
+    private View optionOkay;
+    private View optionGood;
+    private View optionExcellent;
+    
+    // Checkmarks for options
+    private ImageView checkVeryPoor;
+    private ImageView checkPoor;
+    private ImageView checkOkay;
+    private ImageView checkGood;
+    private ImageView checkExcellent;
     
     // Data
     private String questionnaireType;
@@ -211,47 +227,48 @@ public class QuestionnaireFragment extends Fragment {
      * Initialize all view references
      */
     private void initViews(View view) {
-        // Old references
-        // ivBack = view.findViewById(R.id.iv_back);
-        // tvProgressText = view.findViewById(R.id.tv_progress_text);
-        // progressBar = view.findViewById(R.id.progress_bar);
-        // tvQuestionnaireTitle = view.findViewById(R.id.tv_questionnaire_title);
-        // ivQuestionImage = view.findViewById(R.id.iv_question_image);
-        // tvQuestionText = view.findViewById(R.id.tv_question_text);
-        // radioGroupAnswers = view.findViewById(R.id.radio_group_answers);
-        // rbExcellent = view.findViewById(R.id.rb_excellent);
-        // rbGood = view.findViewById(R.id.rb_good);
-        // rbOkay = view.findViewById(R.id.rb_okay);
-        // rbPoor = view.findViewById(R.id.rb_poor);
-        // rbVeryPoor = view.findViewById(R.id.rb_very_poor);
-
-        // New UI references
+        // Initialize all UI components
         ivClose = view.findViewById(R.id.iv_close);
         tvQuestionCount = view.findViewById(R.id.tv_question_count);
         ivQuestionImage = view.findViewById(R.id.iv_question_image);
         tvQuestionText = view.findViewById(R.id.tv_question_text);
+        radioGroup = view.findViewById(R.id.radio_group_options);
         btnNext = view.findViewById(R.id.btn_next);
         
-        // References for option views
-        View optionExcellent = view.findViewById(R.id.option_excellent);
-        View optionGood = view.findViewById(R.id.option_good);
-        View optionOkay = view.findViewById(R.id.option_okay);
-        View optionPoor = view.findViewById(R.id.option_poor);
-        View optionVeryPoor = view.findViewById(R.id.option_very_poor);
+        // Get option card views
+        optionVeryPoor = view.findViewById(R.id.option_very_poor);
+        optionPoor = view.findViewById(R.id.option_poor);
+        optionOkay = view.findViewById(R.id.option_okay);
+        optionGood = view.findViewById(R.id.option_good);
+        optionExcellent = view.findViewById(R.id.option_excellent);
         
-        // Set checkmark icons
-        ImageView checkExcellent = view.findViewById(R.id.check_excellent);
-        ImageView checkGood = view.findViewById(R.id.check_good);
-        ImageView checkOkay = view.findViewById(R.id.check_okay);
-        ImageView checkPoor = view.findViewById(R.id.check_poor);
-        ImageView checkVeryPoor = view.findViewById(R.id.check_very_poor);
+        // Get option check mark views
+        checkVeryPoor = view.findViewById(R.id.check_very_poor);
+        checkPoor = view.findViewById(R.id.check_poor);
+        checkOkay = view.findViewById(R.id.check_okay);
+        checkGood = view.findViewById(R.id.check_good);
+        checkExcellent = view.findViewById(R.id.check_excellent);
         
-        checkExcellent.setImageResource(R.drawable.ic_check);
-        checkGood.setImageResource(R.drawable.ic_check);
-        checkOkay.setImageResource(R.drawable.ic_check);
-        checkPoor.setImageResource(R.drawable.ic_check);
-        checkVeryPoor.setImageResource(R.drawable.ic_check);
-
+        // Update the option text to match new values
+        TextView tvVeryPoor = view.findViewById(R.id.tv_very_poor);
+        TextView tvPoor = view.findViewById(R.id.tv_poor);
+        TextView tvOkay = view.findViewById(R.id.tv_okay);
+        TextView tvGood = view.findViewById(R.id.tv_good);
+        TextView tvExcellent = view.findViewById(R.id.tv_excellent);
+        
+        tvVeryPoor.setText("Never");
+        tvPoor.setText("Almost Never");
+        tvOkay.setText("Sometimes");
+        tvGood.setText("Fairly Often");
+        tvExcellent.setText("Very Often");
+        
+        // Set click listeners for options
+        optionVeryPoor.setOnClickListener(v -> selectOption(0));
+        optionPoor.setOnClickListener(v -> selectOption(1));
+        optionOkay.setOnClickListener(v -> selectOption(2));
+        optionGood.setOnClickListener(v -> selectOption(3));
+        optionExcellent.setOnClickListener(v -> selectOption(4));
+        
         // Set up back button click listener
         ivClose.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
         
@@ -260,13 +277,6 @@ public class QuestionnaireFragment extends Fragment {
         
         // Initially disable the next button until an option is selected
         btnNext.setEnabled(false);
-        
-        // Set up click listeners for options
-        optionExcellent.setOnClickListener(v -> selectOption(5));
-        optionGood.setOnClickListener(v -> selectOption(4));
-        optionOkay.setOnClickListener(v -> selectOption(3));
-        optionPoor.setOnClickListener(v -> selectOption(2));
-        optionVeryPoor.setOnClickListener(v -> selectOption(1));
         
         // Set initial image
         updateQuestionImage();
@@ -414,60 +424,31 @@ public class QuestionnaireFragment extends Fragment {
      * Select an answer option based on its value
      */
     private void selectOption(int optionValue) {
-        // Check if view is available
-        if (getView() == null) {
-            return;  // View is not attached, cannot select option
-        }
-        
-        // Save current answer
-        answers[currentQuestionIndex] = optionValue;
-        
         // Reset previous selection
         resetOptionSelection();
         
-        // Get views
-        View optionExcellent = getView().findViewById(R.id.option_excellent);
-        View optionGood = getView().findViewById(R.id.option_good);
-        View optionOkay = getView().findViewById(R.id.option_okay);
-        View optionPoor = getView().findViewById(R.id.option_poor);
-        View optionVeryPoor = getView().findViewById(R.id.option_very_poor);
-        
-        // Get checkmark ImageViews
-        ImageView checkExcellent = getView().findViewById(R.id.check_excellent);
-        ImageView checkGood = getView().findViewById(R.id.check_good);
-        ImageView checkOkay = getView().findViewById(R.id.check_okay);
-        ImageView checkPoor = getView().findViewById(R.id.check_poor);
-        ImageView checkVeryPoor = getView().findViewById(R.id.check_very_poor);
-        
-        // Update all checkmarks to use the proper check icon
-        checkExcellent.setImageResource(R.drawable.ic_check);
-        checkGood.setImageResource(R.drawable.ic_check);
-        checkOkay.setImageResource(R.drawable.ic_check);
-        checkPoor.setImageResource(R.drawable.ic_check);
-        checkVeryPoor.setImageResource(R.drawable.ic_check);
-        
-        // Mark new selection
+        // Identify the selected option view
         View selectedOption = null;
         ImageView selectedCheck = null;
         
         switch (optionValue) {
-            case 5: // Excellent
+            case 4: // Very Often
                 selectedOption = optionExcellent;
                 selectedCheck = checkExcellent;
                 break;
-            case 4: // Good
+            case 3: // Fairly Often
                 selectedOption = optionGood;
                 selectedCheck = checkGood;
                 break;
-            case 3: // Okay
+            case 2: // Sometimes
                 selectedOption = optionOkay;
                 selectedCheck = checkOkay;
                 break;
-            case 2: // Poor
+            case 1: // Almost Never
                 selectedOption = optionPoor;
                 selectedCheck = checkPoor;
                 break;
-            case 1: // Very Poor
+            case 0: // Never
                 selectedOption = optionVeryPoor;
                 selectedCheck = checkVeryPoor;
                 break;
@@ -477,6 +458,9 @@ public class QuestionnaireFragment extends Fragment {
             selectedOption.setSelected(true);
             previouslySelectedOption = selectedOption;
             currentSelectedOption = optionValue;
+            
+            // Save the answer immediately
+            answers[currentQuestionIndex] = optionValue;
             
             // Show checkmark for selected option
             if (selectedCheck != null) {
@@ -498,33 +482,25 @@ public class QuestionnaireFragment extends Fragment {
         }
         
         // Hide all checkmarks
-        if (getView() != null) {
-            ImageView checkExcellent = getView().findViewById(R.id.check_excellent);
-            ImageView checkGood = getView().findViewById(R.id.check_good);
-            ImageView checkOkay = getView().findViewById(R.id.check_okay);
-            ImageView checkPoor = getView().findViewById(R.id.check_poor);
-            ImageView checkVeryPoor = getView().findViewById(R.id.check_very_poor);
-            
-            checkExcellent.setVisibility(View.INVISIBLE);
-            checkGood.setVisibility(View.INVISIBLE);
-            checkOkay.setVisibility(View.INVISIBLE);
-            checkPoor.setVisibility(View.INVISIBLE);
-            checkVeryPoor.setVisibility(View.INVISIBLE);
-        }
+        checkExcellent.setVisibility(View.INVISIBLE);
+        checkGood.setVisibility(View.INVISIBLE);
+        checkOkay.setVisibility(View.INVISIBLE);
+        checkPoor.setVisibility(View.INVISIBLE);
+        checkVeryPoor.setVisibility(View.INVISIBLE);
     }
     
     /**
      * Submit the questionnaire and calculate score
      */
     private void submitQuestionnaire() {
-        // Calculate total score
+        // Calculate total score using ScoreUtils
         int totalScore = 0;
         for (int answer : answers) {
             totalScore += answer;
         }
         
         // Calculate percentage (0-100)
-        int percentageScore = totalScore * 100 / (TOTAL_QUESTIONS * 5);
+        int percentageScore = totalScore * 100 / (TOTAL_QUESTIONS * 4); // 4 is max value per question
         
         // Get appropriate tips based on score
         List<String> tips;
@@ -563,8 +539,8 @@ public class QuestionnaireFragment extends Fragment {
         // Get current date
         String currentDate = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault()).format(new Date());
         
-        // Convert answers array to map
-        Map<String, String> answersMap = QuestionnaireResponse.convertAnswersToMap(answers);
+        // Convert answers array to map using ScoreUtils
+        Map<String, String> answersMap = ScoreUtils.convertAnswersToMap(answers);
         
         // Get appropriate tips based on score
         List<String> tips;

@@ -1,5 +1,7 @@
 package com.krishna.navbar.models;
 
+import com.krishna.navbar.utils.ScoreUtils;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -62,27 +64,9 @@ public class QuestionnaireResponse {
         Map<String, String> answerMap = new HashMap<>();
         for (int i = 0; i < answers.length; i++) {
             String questionKey = "q" + (i + 1);
-            String answerValue = getAnswerText(answers[i]);
+            String answerValue = ScoreUtils.getAnswerText(answers[i]);
             answerMap.put(questionKey, answerValue);
         }
         return answerMap;
-    }
-
-    // Convert numeric answer to text representation
-    private static String getAnswerText(int answerValue) {
-        switch (answerValue) {
-            case 1:
-                return "Very Poor";
-            case 2:
-                return "Poor";
-            case 3:
-                return "Okay";
-            case 4:
-                return "Good";
-            case 5:
-                return "Excellent";
-            default:
-                return "Unknown";
-        }
     }
 } 

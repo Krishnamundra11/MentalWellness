@@ -1,4 +1,4 @@
-    package com.krishna.navbar;
+package com.krishna.navbar.fragments;
 
 import android.app.Dialog;
 import android.content.Intent;
@@ -6,7 +6,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.ArrayAdapter;
@@ -17,8 +19,11 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.activity.result.ActivityResultLauncher;
+import androidx.activity.result.contract.ActivityResultContracts;
 
 import com.bumptech.glide.Glide;
 import com.google.android.material.button.MaterialButton;
@@ -31,18 +36,21 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.krishna.navbar.R;
+import com.krishna.navbar.StatisticsActivity;
 import com.krishna.navbar.models.UserProfile;
 import com.krishna.navbar.utils.FirestoreHelper;
+import com.krishna.navbar.fragments.FindExpertFragment;
+import com.krishna.navbar.fragments.MusicMainFragment;
+import com.krishna.navbar.fragments.ScoreRecommendationFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
-import java.util.Map;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
-public class ProfileActivity extends AppCompatActivity {
+public class ProfileFragment extends Fragment {
     private static final int PICK_IMAGE_REQUEST = 1;
 
     // Add a field to hold the currently open edit dialog
@@ -62,59 +70,80 @@ public class ProfileActivity extends AppCompatActivity {
     private StorageReference storageRef;
     private Uri imageUri;
     private FirestoreHelper firestoreHelper;
+    
+    private ActivityResultLauncher<Intent> imagePickerLauncher;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_profile);
-
+        
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
         currentUser = mAuth.getCurrentUser();
         storageRef = FirebaseStorage.getInstance().getReference();
         firestoreHelper = new FirestoreHelper();
+        
+        // Register activity result launcher for image picking
+        imagePickerLauncher = registerForActivityResult(
+            new ActivityResultContracts.StartActivityForResult(),
+            result -> {
+                if (result.getResultCode() == getActivity().RESULT_OK && result.getData() != null) {
+                    imageUri = result.getData().getData();
+                    // Update main profile image
+                    profileImage.setImageURI(imageUri);
+                    // If edit dialog is open, update its image view
+                    if (editDialog != null) {
+                        CircleImageView dialogImage = editDialog.findViewById(R.id.dialogProfileImage);
+                        if (dialogImage != null) {
+                            dialogImage.setImageURI(imageUri);
+                        }
+                    }
+                }
+            }
+        );
+    }
 
-        if (currentUser == null) {
-            // User not logged in, redirect to login
-            startActivity(new Intent(this, LoginActivity.class));
-            finish();
-            return;
-        }
-
-        initializeViews();
+    @Nullable
+    @Override
+    public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
+        View view = inflater.inflate(R.layout.activity_profile, container, false);
+        
+        initViews(view);
         loadUserData();
         loadScores();
         setupClickListeners();
+        
+        return view;
     }
+    
+    private void initViews(View view) {
+        profileImage = view.findViewById(R.id.profileImage);
+        nameText = view.findViewById(R.id.nameText);
+        emailText = view.findViewById(R.id.emailText);
+        genderAgeText = view.findViewById(R.id.genderAgeText);
+        professionText = view.findViewById(R.id.professionText);
+        
+        therapyCard = view.findViewById(R.id.therapyCard);
+        analysisCard = view.findViewById(R.id.analysisCard);
+        musicCard = view.findViewById(R.id.musicCard);
+        
+        academicScoreCard = view.findViewById(R.id.academicScoreCard);
+        stressScoreCard = view.findViewById(R.id.stressScoreCard);
+        sleepScoreCard = view.findViewById(R.id.sleepScoreCard);
+        
+        academicProgressBar = view.findViewById(R.id.academicProgressBar);
+        stressProgressBar = view.findViewById(R.id.stressProgressBar);
+        sleepProgressBar = view.findViewById(R.id.sleepProgressBar);
+        
+        academicScoreText = view.findViewById(R.id.academicScoreText);
+        stressScoreText = view.findViewById(R.id.stressScoreText);
+        sleepScoreText = view.findViewById(R.id.sleepScoreText);
+        
+        academicScoreDescription = view.findViewById(R.id.academicScoreDescription);
+        stressScoreDescription = view.findViewById(R.id.stressScoreDescription);
+        sleepScoreDescription = view.findViewById(R.id.sleepScoreDescription);
 
-    private void initializeViews() {
-        profileImage = findViewById(R.id.profileImage);
-        nameText = findViewById(R.id.nameText);
-        emailText = findViewById(R.id.emailText);
-        genderAgeText = findViewById(R.id.genderAgeText);
-        professionText = findViewById(R.id.professionText);
-        
-        therapyCard = findViewById(R.id.therapyCard);
-        analysisCard = findViewById(R.id.analysisCard);
-        musicCard = findViewById(R.id.musicCard);
-        
-        academicScoreCard = findViewById(R.id.academicScoreCard);
-        stressScoreCard = findViewById(R.id.stressScoreCard);
-        sleepScoreCard = findViewById(R.id.sleepScoreCard);
-        
-        academicProgressBar = findViewById(R.id.academicProgressBar);
-        stressProgressBar = findViewById(R.id.stressProgressBar);
-        sleepProgressBar = findViewById(R.id.sleepProgressBar);
-        
-        academicScoreText = findViewById(R.id.academicScoreText);
-        stressScoreText = findViewById(R.id.stressScoreText);
-        sleepScoreText = findViewById(R.id.sleepScoreText);
-        
-        academicScoreDescription = findViewById(R.id.academicScoreDescription);
-        stressScoreDescription = findViewById(R.id.stressScoreDescription);
-        sleepScoreDescription = findViewById(R.id.sleepScoreDescription);
-
-        ImageButton editProfileButton = findViewById(R.id.editProfileButton);
+        ImageButton editProfileButton = view.findViewById(R.id.editProfileButton);
         editProfileButton.setOnClickListener(v -> showEditDialog());
     }
 
@@ -142,7 +171,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
             }
         }).addOnFailureListener(e -> 
-            Toast.makeText(ProfileActivity.this, "Error loading profile: " + e.getMessage(), Toast.LENGTH_SHORT).show()
+            Toast.makeText(getContext(), "Error loading profile: " + e.getMessage(), Toast.LENGTH_SHORT).show()
         );
     }
 
@@ -182,7 +211,7 @@ public class ProfileActivity extends AppCompatActivity {
                 .addOnFailureListener(e -> {
                     // Use default values on error
                     updateScoreUI(category, getDefaultScore(category));
-                    Toast.makeText(ProfileActivity.this, 
+                    Toast.makeText(getContext(), 
                             "Error loading " + category + " score: " + e.getMessage(), 
                             Toast.LENGTH_SHORT).show();
                 });
@@ -242,42 +271,81 @@ public class ProfileActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         therapyCard.setOnClickListener(v -> {
-            // Navigate to Therapy booking screen
-            startActivity(new Intent(ProfileActivity.this, TherapyActivity.class));
+            // Navigate to Therapy booking screen using FindExpertFragment
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.con, new FindExpertFragment())
+                    .addToBackStack(null)
+                    .commit();
+            }
         });
 
         analysisCard.setOnClickListener(v -> {
-            // Navigate to Statistics screen
-            startActivity(new Intent(ProfileActivity.this, StatisticsActivity.class));
+            // Navigate to Statistics screen - keep using activity for now since we don't have a Stats fragment
+            startActivity(new Intent(getActivity(), StatisticsActivity.class));
         });
 
         musicCard.setOnClickListener(v -> {
-            // Navigate to Music Content screen
-            startActivity(new Intent(ProfileActivity.this, WellnessLibraryActivity.class));
+            // Navigate to Music Content screen using MusicMainFragment
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.con, new MusicMainFragment())
+                    .addToBackStack(null)
+                    .commit();
+            }
         });
         
         // Add click listeners for score cards
         academicScoreCard.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, StatisticsActivity.class);
-            intent.putExtra("category", "academic");
-            startActivity(intent);
+            // Navigate to ScoreRecommendationFragment with academic category
+            if (getActivity() != null) {
+                Bundle args = new Bundle();
+                args.putString("category", "academic");
+                ScoreRecommendationFragment fragment = new ScoreRecommendationFragment();
+                fragment.setArguments(args);
+                
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.con, fragment)
+                    .addToBackStack(null)
+                    .commit();
+            }
         });
         
         stressScoreCard.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, StatisticsActivity.class);
-            intent.putExtra("category", "stress");
-            startActivity(intent);
+            // Navigate to ScoreRecommendationFragment with stress category
+            if (getActivity() != null) {
+                Bundle args = new Bundle();
+                args.putString("category", "stress");
+                ScoreRecommendationFragment fragment = new ScoreRecommendationFragment();
+                fragment.setArguments(args);
+                
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.con, fragment)
+                    .addToBackStack(null)
+                    .commit();
+            }
         });
         
         sleepScoreCard.setOnClickListener(v -> {
-            Intent intent = new Intent(ProfileActivity.this, StatisticsActivity.class);
-            intent.putExtra("category", "sleep");
-            startActivity(intent);
+            // Navigate to ScoreRecommendationFragment with sleep category
+            if (getActivity() != null) {
+                Bundle args = new Bundle();
+                args.putString("category", "sleep");
+                ScoreRecommendationFragment fragment = new ScoreRecommendationFragment();
+                fragment.setArguments(args);
+                
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.con, fragment)
+                    .addToBackStack(null)
+                    .commit();
+            }
         });
     }
 
     private void showEditDialog() {
-        final Dialog dialog = new Dialog(this);
+        if (getActivity() == null) return;
+        
+        final Dialog dialog = new Dialog(getActivity());
         this.editDialog = dialog; // keep reference to edit dialog
         dialog.requestWindowFeature(Window.FEATURE_NO_TITLE);
         dialog.setContentView(R.layout.dialog_edit_profile);
@@ -297,7 +365,7 @@ public class ProfileActivity extends AppCompatActivity {
         
         if (progressBar == null) {
             // Add a progress bar programmatically if it doesn't exist in the layout
-            final ProgressBar newProgressBar = new ProgressBar(this, null, android.R.attr.progressBarStyleSmall);
+            final ProgressBar newProgressBar = new ProgressBar(getContext(), null, android.R.attr.progressBarStyleSmall);
             newProgressBar.setId(View.generateViewId());
             newProgressBar.setVisibility(View.GONE);
             ((LinearLayout) saveButton.getParent()).addView(newProgressBar);
@@ -306,7 +374,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Setup gender dropdown
         String[] genders = new String[]{"Male", "Female", "Other"};
         ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
+                getContext(),
                 android.R.layout.simple_dropdown_item_1line,
                 genders
         );
@@ -326,7 +394,7 @@ public class ProfileActivity extends AppCompatActivity {
                     
                     // Load profile image
                     if (profile.getProfileImageURL() != null && !profile.getProfileImageURL().isEmpty()) {
-                        Glide.with(this)
+                        Glide.with(getContext())
                                 .load(profile.getProfileImageURL())
                                 .placeholder(R.drawable.default_profile)
                                 .into(dialogProfileImage);
@@ -338,7 +406,7 @@ public class ProfileActivity extends AppCompatActivity {
         // Image selection
         changeImageButton.setOnClickListener(v -> {
             Intent intent = new Intent(Intent.ACTION_PICK, MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-            startActivityForResult(intent, PICK_IMAGE_REQUEST);
+            imagePickerLauncher.launch(intent);
         });
 
         saveButton.setOnClickListener(v -> {
@@ -433,23 +501,6 @@ public class ProfileActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-            imageUri = data.getData();
-            // update main profile image
-            profileImage.setImageURI(imageUri);
-            // if edit dialog is open, update its image view
-            if (editDialog != null) {
-                CircleImageView dialogImage = editDialog.findViewById(R.id.dialogProfileImage);
-                if (dialogImage != null) {
-                    dialogImage.setImageURI(imageUri);
-                }
-            }
-        }
-    }
-
     private void uploadImageAndSaveProfile(Dialog dialog, String name, int age, String gender, String email, String profession) {
         StorageReference imageRef = storageRef.child("profileImages/" + currentUser.getUid() + ".jpg");
         
@@ -473,7 +524,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                     if (cancelButton != null) cancelButton.setEnabled(true);
                     
-                    Toast.makeText(ProfileActivity.this, "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Failed to upload image: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 
@@ -507,7 +558,7 @@ public class ProfileActivity extends AppCompatActivity {
                 }
                 if (cancelButton != null) cancelButton.setEnabled(true);
                 
-                Toast.makeText(ProfileActivity.this, "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                Toast.makeText(getContext(), "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
             });
         }
     }
@@ -521,7 +572,7 @@ public class ProfileActivity extends AppCompatActivity {
         db.collection("users").document(currentUser.getUid())
                 .set(profile)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(ProfileActivity.this, "Profile updated successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Profile updated successfully", Toast.LENGTH_SHORT).show();
                     dialog.dismiss();
                     loadUserData(); // Reload profile data
                 })
@@ -534,7 +585,7 @@ public class ProfileActivity extends AppCompatActivity {
                     }
                     if (cancelButton != null) cancelButton.setEnabled(true);
                     
-                    Toast.makeText(ProfileActivity.this, "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getContext(), "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
     }
 } 

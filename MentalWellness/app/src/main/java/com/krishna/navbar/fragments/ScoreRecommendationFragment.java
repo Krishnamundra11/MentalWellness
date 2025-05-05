@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -13,9 +14,23 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 import com.krishna.navbar.R;
+import com.krishna.navbar.models.PredictionRequest;
+import com.krishna.navbar.models.PredictionResponse;
+import com.krishna.navbar.utils.FirestoreHelper;
+import com.krishna.navbar.utils.RetrofitClient;
 
 import java.util.ArrayList;
+import java.util.Map;
+
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
 
 /**
  * ScoreRecommendationFragment - Shows score results and recommendations based on questionnaire type
@@ -39,12 +54,18 @@ public class ScoreRecommendationFragment extends Fragment {
     private TextView tvTip4;
     private TextView tvSavedNotice;
     private Button btnDoAgain;
+    private Button btnRefreshResult;
+    private ProgressBar progressLoading;
     private View scoreCardBackground;
 
     // Data
     private String type;
     private int score;
     private ArrayList<String> tips;
+    private FirebaseAuth mAuth;
+    private FirebaseUser currentUser;
+    private FirebaseFirestore db;
+    private FirestoreHelper firestoreHelper;
 
     public ScoreRecommendationFragment() {
         // Required empty public constructor
@@ -71,6 +92,12 @@ public class ScoreRecommendationFragment extends Fragment {
             score = getArguments().getInt(ARG_SCORE, 0);
             tips = getArguments().getStringArrayList(ARG_TIPS);
         }
+        
+        // Initialize Firebase
+        mAuth = FirebaseAuth.getInstance();
+        currentUser = mAuth.getCurrentUser();
+        db = FirebaseFirestore.getInstance();
+        firestoreHelper = new FirestoreHelper();
     }
 
     @Nullable
@@ -84,6 +111,9 @@ public class ScoreRecommendationFragment extends Fragment {
 
         // Update UI with data
         updateUI();
+        
+        // Fetch prediction from API
+        fetchPredictionFromApi();
 
         // Set up click listeners
         setupClickListeners();
@@ -107,6 +137,8 @@ public class ScoreRecommendationFragment extends Fragment {
         tvTip4 = view.findViewById(R.id.tv_tip_4);
         tvSavedNotice = view.findViewById(R.id.tv_saved_notice);
         btnDoAgain = view.findViewById(R.id.btn_do_stress_again);
+        btnRefreshResult = view.findViewById(R.id.btn_refresh_result);
+        progressLoading = view.findViewById(R.id.progress_loading);
         
         // Get reference to the constraint layout that contains the score card content
         scoreCardBackground = view.findViewById(R.id.score_background);
@@ -128,7 +160,6 @@ public class ScoreRecommendationFragment extends Fragment {
         // Configure UI based on score type
         String titleText = "Your ";
         String buttonText = "Do ";
-        int cardBackgroundColor = 0;
         
         switch (type) {
             case "academic":
@@ -151,12 +182,106 @@ public class ScoreRecommendationFragment extends Fragment {
         tvScoreTitle.setText(titleText);
         btnDoAgain.setText(buttonText);
         
-        // Set tips
+        // Set tips initially (these will be replaced by API recommendation)
         if (tips != null && tips.size() >= 4) {
             tvTip1.setText(tips.get(0));
             tvTip2.setText(tips.get(1));
             tvTip3.setText(tips.get(2));
             tvTip4.setText(tips.get(3));
+        }
+    }
+    
+    /**
+     * Fetch prediction and recommendation from API
+     */
+    private void fetchPredictionFromApi() {
+        if (currentUser == null) {
+            Toast.makeText(getContext(), "Error: User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Show loading indicator
+        progressLoading.setVisibility(View.VISIBLE);
+        
+        // Get answers from Firestore
+        fetchAnswersAndMakeApiCall();
+    }
+    
+    /**
+     * Fetch answers from Firestore and make API call
+     */
+    private void fetchAnswersAndMakeApiCall() {
+        // Get reference to today's questionnaire document
+        DocumentReference docRef = firestoreHelper.getTodayQuestionnaireReference(type);
+        
+        docRef.get().addOnSuccessListener(documentSnapshot -> {
+            if (documentSnapshot.exists()) {
+                // Get answers map from document
+                Map<String, String> answers = (Map<String, String>) documentSnapshot.get("answers");
+                
+                if (answers != null) {
+                    // Create request model
+                    PredictionRequest request = new PredictionRequest(answers);
+                    
+                    // Make API call
+                    makeApiCall(request);
+                } else {
+                    // No answers found
+                    progressLoading.setVisibility(View.GONE);
+                    Toast.makeText(getContext(), "Error: No answers found", Toast.LENGTH_SHORT).show();
+                }
+            } else {
+                // Document doesn't exist
+                progressLoading.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Error: No data found", Toast.LENGTH_SHORT).show();
+            }
+        }).addOnFailureListener(e -> {
+            // Error getting document
+            progressLoading.setVisibility(View.GONE);
+            Toast.makeText(getContext(), "Error fetching answers: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        });
+    }
+    
+    /**
+     * Make API call to get prediction and recommendation
+     */
+    private void makeApiCall(PredictionRequest request) {
+        RetrofitClient.getApiService().getPrediction(request).enqueue(new Callback<PredictionResponse>() {
+            @Override
+            public void onResponse(Call<PredictionResponse> call, Response<PredictionResponse> response) {
+                progressLoading.setVisibility(View.GONE);
+                
+                if (response.isSuccessful() && response.body() != null) {
+                    PredictionResponse predictionResponse = response.body();
+                    updateUIWithPrediction(predictionResponse);
+                } else {
+                    Toast.makeText(getContext(), "Error getting prediction", Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onFailure(Call<PredictionResponse> call, Throwable t) {
+                progressLoading.setVisibility(View.GONE);
+                Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
+    
+    /**
+     * Update UI with prediction response
+     */
+    private void updateUIWithPrediction(PredictionResponse response) {
+        // Update the stress level with prediction
+        if (response.getPrediction() != null) {
+            tvScoreLevel.setText(response.getPrediction());
+        }
+        
+        // Update the message with recommendation
+        if (response.getRecommendation() != null) {
+            tvScoreMessage.setText(response.getRecommendation());
+            
+            // Set first tip to recommendation and keep others (can be custom)
+            tvTip1.setText(response.getRecommendation());
         }
     }
     
@@ -248,25 +373,37 @@ public class ScoreRecommendationFragment extends Fragment {
     }
 
     /**
-     * Set up click listeners for interactive elements
+     * Set up click listeners
      */
     private void setupClickListeners() {
         // Back button
-        ivBack.setOnClickListener(v -> requireActivity().getSupportFragmentManager().popBackStack());
+        ivBack.setOnClickListener(v -> {
+            if (getActivity() != null) {
+                getActivity().getSupportFragmentManager().popBackStack();
+            }
+        });
         
-        // Do quiz again button
+        // Do questionnaire again button
         btnDoAgain.setOnClickListener(v -> {
-            // Start the QuestionnaireFragment again with the same type
-            Bundle args = new Bundle();
-            args.putString("type", type);
-            QuestionnaireFragment questionnaireFragment = new QuestionnaireFragment();
-            questionnaireFragment.setArguments(args);
-            
-            getParentFragmentManager()
-                .beginTransaction()
-                .replace(R.id.con, questionnaireFragment, null)
-                .addToBackStack(null)
-                .commit();
+            if (getActivity() != null) {
+                // Create a new instance of QuestionnaireFragment with the same type
+                QuestionnaireFragment questionnaireFragment = new QuestionnaireFragment();
+                Bundle args = new Bundle();
+                args.putString("type", type);
+                questionnaireFragment.setArguments(args);
+                
+                // Replace the current fragment with the questionnaire fragment
+                getActivity().getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.con, questionnaireFragment)
+                    .addToBackStack(null)
+                    .commit();
+            }
+        });
+        
+        // Refresh result button
+        btnRefreshResult.setOnClickListener(v -> {
+            // Fetch prediction from API again
+            fetchPredictionFromApi();
         });
     }
 } 

@@ -64,6 +64,14 @@ public class BookingConfirmationFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_booking_confirmation, container, false);
         
+        // Hide bottom navigation when this fragment is shown
+        if (getActivity() != null) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.GONE);
+            }
+        }
+        
         extractArguments();
         initViews(view);
         
@@ -76,6 +84,18 @@ public class BookingConfirmationFragment extends Fragment {
         setupListeners();
         
         return view;
+    }
+    
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Ensure we restore the bottom navigation visibility for other fragments
+        if (getActivity() != null && !isRemoving()) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.VISIBLE);
+            }
+        }
     }
     
     private void extractArguments() {
@@ -184,12 +204,23 @@ public class BookingConfirmationFragment extends Fragment {
     }
     
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> {
+            // Go back to the FindExpertFragment (home of therapy section)
+            getParentFragmentManager().popBackStack(null, 1);
+            
+            // Navigate to FindExpertFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new FindExpertFragment())
+                .commit();
+        });
         
         btnViewAppointments.setOnClickListener(v -> {
-            // Navigate to appointments screen (to be implemented)
-            // For now, just go back
-            getParentFragmentManager().popBackStack();
+            // Navigate to MyAppointmentsFragment
+            getParentFragmentManager().beginTransaction()
+                .replace(R.id.con, new
+                        MyAppointmentsFragment())
+                .addToBackStack(null)
+                .commit();
         });
         
         btnBackHome.setOnClickListener(v -> {

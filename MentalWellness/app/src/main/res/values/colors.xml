@@ -31,5 +31,9 @@
     <color name="text_primary">#3c415e</color>
     <color name="text_secondary">#90a4ae</color>
 
+    <color name="gray">#888888</color>
+    <color name="green">#4CAF50</color>
+    <color name="blue">#2196F3</color>
+    <color name="red">#F44336</color>
 
 </resources>
