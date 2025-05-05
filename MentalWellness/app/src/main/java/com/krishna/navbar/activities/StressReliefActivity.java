@@ -21,7 +21,7 @@ public class StressReliefActivity extends AppCompatActivity {
     
     // UI Components
     private TextView timerText;
-    private ImageButton backButton, menuButton, volumeButton, musicButton, notificationButton;
+    private ImageButton backButton, menuButton;
     private FloatingActionButton pauseButton, previousButton, nextButton;
     
     // Timer variables
@@ -55,11 +55,6 @@ public class StressReliefActivity extends AppCompatActivity {
         pauseButton = findViewById(R.id.btn_pause);
         previousButton = findViewById(R.id.btn_previous);
         nextButton = findViewById(R.id.btn_next);
-        
-        // Audio control buttons
-        volumeButton = findViewById(R.id.btn_volume);
-        musicButton = findViewById(R.id.btn_music);
-        notificationButton = findViewById(R.id.btn_notification);
     }
     
     private void setupClickListeners() {
@@ -89,18 +84,6 @@ public class StressReliefActivity extends AppCompatActivity {
 
         nextButton.setOnClickListener(v -> {
             Toast.makeText(this, "Next exercise", Toast.LENGTH_SHORT).show();
-        });
-
-        volumeButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Volume controls", Toast.LENGTH_SHORT).show();
-        });
-
-        musicButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Music selection", Toast.LENGTH_SHORT).show();
-        });
-
-        notificationButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Notification settings", Toast.LENGTH_SHORT).show();
         });
     }
     
