@@ -1,131 +1,146 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="20dp"
-    android:background="@drawable/rounded_dialog_background">
-
-    <TextView
-        android:id="@+id/tvDialogTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Create New Playlist"
-        android:textColor="#2E2E2E"
-        android:textSize="20sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvDialogSubtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Create a playlist to help with your mental wellness journey"
-        android:textColor="#5C5C5C"
-        android:textSize="14sp"
-        android:fontFamily="sans-serif"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDialogTitle" />
-
-    <TextView
-        android:id="@+id/tvNameLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Playlist Name"
-        android:textColor="#5C5C5C"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvDialogSubtitle" />
-
-    <EditText
-        android:id="@+id/etPlaylistName"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/edit_text_background"
-        android:hint="Enter playlist name"
-        android:inputType="text"
-        android:padding="14dp"
-        android:textSize="16sp"
-        android:textColor="#2E2E2E"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvNameLabel" />
-
-    <TextView
-        android:id="@+id/tvSelectTracksLabel"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:text="Select Tracks"
-        android:textColor="#5C5C5C"
-        android:textSize="14sp"
-        android:textStyle="bold"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/etPlaylistName" />
-
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rvSelectTracks"
-        android:layout_width="0dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="8dp"
-        android:background="@drawable/rounded_recyclerview_background"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvSelectTracksLabel" />
+    android:layout_margin="16dp"
+    app:cardCornerRadius="16dp"
+    app:cardElevation="8dp">
 
     <LinearLayout
-        android:id="@+id/buttonContainer"
-        android:layout_width="0dp"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        android:orientation="horizontal"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/rvSelectTracks">
+        android:orientation="vertical"
+        android:padding="16dp">
 
-        <Button
-            android:id="@+id/btnSelectAll"
-            style="@style/Widget.MaterialComponents.Button.TextButton"
-            android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Select All"
-            android:textAllCaps="false"
-            android:textColor="@color/colorOrange" />
+            android:text="Create New Playlist"
+            android:textAlignment="center"
+            android:textColor="#2E2E2E"
+            android:textSize="20sp"
+            android:textStyle="bold"
+            android:layout_marginBottom="16dp" />
 
-        <Space
-            android:layout_width="0dp"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/textInputLayoutPlaylistName"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:layout_marginBottom="16dp"
+            android:hint="Playlist Name"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
-        <Button
-            android:id="@+id/btnCancel"
-            style="@style/Widget.MaterialComponents.Button.OutlinedButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="8dp"
-            android:text="Cancel"
-            android:textAllCaps="false"
-            android:textColor="#5C5C5C" />
+            <com.google.android.material.textfield.TextInputEditText
+                android:id="@+id/editTextPlaylistName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:maxLines="1"
+                android:maxLength="30" />
+        </com.google.android.material.textfield.TextInputLayout>
 
-        <Button
-            android:id="@+id/btnCreate"
-            android:layout_width="wrap_content"
+        <TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@drawable/rounded_button_background"
-            android:text="Create"
-            android:textAllCaps="false"
-            android:textColor="@android:color/white" />
+            android:text="Choose Playlist Color"
+            android:textColor="#2E2E2E"
+            android:textSize="16sp"
+            android:layout_marginBottom="8dp" />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollbars="none">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <RadioGroup
+                    android:id="@+id/radioGroupColors"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="16dp">
+
+                    <RadioButton
+                        android:id="@+id/radioBlue"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/color_radio_blue"
+                        android:button="@null"
+                        android:layout_marginEnd="8dp"
+                        android:checked="true" />
+
+                    <RadioButton
+                        android:id="@+id/radioYellow"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/color_radio_yellow"
+                        android:button="@null"
+                        android:layout_marginEnd="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/radioPurple"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/color_radio_purple"
+                        android:button="@null"
+                        android:layout_marginEnd="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/radioGreen"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/color_radio_green"
+                        android:button="@null"
+                        android:layout_marginEnd="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/radioRed"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/color_radio_red"
+                        android:button="@null"
+                        android:layout_marginEnd="8dp" />
+
+                    <RadioButton
+                        android:id="@+id/radioTeal"
+                        android:layout_width="48dp"
+                        android:layout_height="48dp"
+                        android:background="@drawable/color_radio_teal"
+                        android:button="@null" />
+                </RadioGroup>
+            </LinearLayout>
+        </HorizontalScrollView>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="16dp">
+
+            <Button
+                android:id="@+id/btnCancel"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Cancel"
+                android:textColor="#2E2E2E"
+                android:backgroundTint="#EFEFEF"
+                android:layout_marginEnd="8dp" />
+
+            <Button
+                android:id="@+id/btnCreate"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Create"
+                android:textColor="@android:color/white"
+                android:backgroundTint="#F97B43"
+                android:layout_marginStart="8dp" />
+        </LinearLayout>
     </LinearLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout> 
+</androidx.cardview.widget.CardView> 

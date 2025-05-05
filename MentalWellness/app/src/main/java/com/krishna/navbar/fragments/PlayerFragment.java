@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
 
@@ -39,7 +40,6 @@ public class PlayerFragment extends Fragment {
     
     private boolean isPlaying = true;
     private Handler handler = new Handler();
-    private int progressUpdateIntervalMs = 1000; // 1 second
     
     @Nullable
     @Override
@@ -72,10 +72,75 @@ public class PlayerFragment extends Fragment {
         btnNext = view.findViewById(R.id.btnNext);
         btnHeart = view.findViewById(R.id.btnHeart);
         
+        // Get the album art
+        ImageView ivAlbumArt = view.findViewById(R.id.ivAlbumArt);
+        
         // Set track information
         tvPlayerTitle.setText(trackName);
         getSubtitle();
         tvPlayerCategory.setText(playlistName);
+        
+        // Apply color theme based on playlist
+        int tintColor = getResources().getColor(R.color.colorOrange); // default
+        switch (playlistName) {
+            case "Finding Calm":
+                tintColor = getResources().getColor(R.color.colorBlue);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_blue_background);
+                break;
+            case "Spiritual":
+                tintColor = getResources().getColor(R.color.colorYellow);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_yellow_background);
+                break;
+            case "Motivation":
+                tintColor = getResources().getColor(R.color.colorMint);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_mint_background);
+                break;
+            case "Breathe":
+                tintColor = getResources().getColor(R.color.colorPink);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_pink_background);
+                break;
+            case "Mindfulness":
+                tintColor = getResources().getColor(R.color.colorPurple);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_purple_background);
+                break;
+            case "Sleep Well":
+                tintColor = getResources().getColor(R.color.colorBlueDark);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_blue_dark_background);
+                break;
+            case "Healing":
+                tintColor = getResources().getColor(R.color.colorOrange);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_orange_background);
+                break;
+            case "Anxiety Relief":
+                tintColor = getResources().getColor(R.color.colorGreen);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_green_background);
+                break;
+            case "Positive Energy":
+                tintColor = getResources().getColor(R.color.colorRed);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_red_background);
+                break;
+            case "Stress Relief":
+                tintColor = getResources().getColor(R.color.colorTeal);
+                ivAlbumArt.setColorFilter(tintColor);
+                btnPlayPause.setBackgroundResource(R.drawable.player_play_button_teal_background);
+                break;
+            default:
+                tintColor = getResources().getColor(R.color.colorOrange);
+                ivAlbumArt.setColorFilter(tintColor);
+                break;
+        }
+        
+        // Set the color for the category text
+        tvPlayerCategory.setTextColor(tintColor);
         
         // Set total time from track
         Track currentTrack = getTrackFromPlaylist();
@@ -167,8 +232,10 @@ public class PlayerFragment extends Fragment {
         updatePlayPauseButton();
         
         if (isPlaying) {
+            // When resuming, start fresh
             startProgressUpdate();
         } else {
+            // When pausing, make sure to cancel all pending updates
             handler.removeCallbacks(progressUpdateRunnable);
         }
     }
@@ -184,28 +251,31 @@ public class PlayerFragment extends Fragment {
         // Reset any existing callbacks
         handler.removeCallbacks(progressUpdateRunnable);
         
-        // Start progress updates
-        handler.post(progressUpdateRunnable);
+        // Start progress updates immediately
+        progressUpdateRunnable.run();
     }
     
     private final Runnable progressUpdateRunnable = new Runnable() {
         @Override
         public void run() {
-            if (isPlaying) {
-                // Update progress (in real app, this would be based on actual playback)
-                int currentProgress = seekBar.getProgress();
-                if (currentProgress < 100) {
-                    seekBar.setProgress(currentProgress + 1);
-                    
-                    // Update current time text based on progress
-                    updateTimeDisplay(currentProgress);
-                    
-                    // Schedule next update
-                    handler.postDelayed(this, progressUpdateIntervalMs);
-                } else {
-                    // Track finished, play next
-                    playNextTrack();
-                }
+            if (!isPlaying) {
+                return; // Exit if not playing
+            }
+            
+            // Update progress (in real app, this would be based on actual playback)
+            int currentProgress = seekBar.getProgress();
+            if (currentProgress < 100) {
+                // Update progress by 1 each second
+                seekBar.setProgress(currentProgress + 1);
+                
+                // Update current time text based on progress
+                updateTimeDisplay(currentProgress);
+                
+                // Schedule next update in exactly 1 second (1000ms)
+                handler.postDelayed(this, 1000);
+            } else {
+                // Track finished, play next
+                playNextTrack();
             }
         }
     };
@@ -237,7 +307,7 @@ public class PlayerFragment extends Fragment {
     }
     
     private void playPreviousTrack() {
-        // Stop current playback
+        // Stop current playback timer
         handler.removeCallbacks(progressUpdateRunnable);
         
         // Move to previous track
@@ -253,7 +323,7 @@ public class PlayerFragment extends Fragment {
     }
     
     private void playNextTrack() {
-        // Stop current playback
+        // Stop current playback timer
         handler.removeCallbacks(progressUpdateRunnable);
         
         // Move to next track
@@ -302,7 +372,8 @@ public class PlayerFragment extends Fragment {
     }
     
     private void navigateBack() {
-        // Stop playback
+        // Stop playback and clean up
+        isPlaying = false;
         handler.removeCallbacks(progressUpdateRunnable);
         
         // Go back to previous fragment
@@ -321,7 +392,8 @@ public class PlayerFragment extends Fragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        // Clean up handler
+        // Clean up all handlers and timers
+        isPlaying = false;
         handler.removeCallbacks(progressUpdateRunnable);
     }
 } 

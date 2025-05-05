@@ -5,6 +5,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -156,9 +157,15 @@ public class LibraryFragment extends Fragment {
     }
     
     private void createNewPlaylist() {
-        // Create a new playlist dialog
-        CreatePlaylistDialogFragment dialog = new CreatePlaylistDialogFragment();
-        dialog.show(getChildFragmentManager(), "CreatePlaylistDialog");
+        try {
+            // Create a new playlist dialog
+            CreatePlaylistDialogFragment dialog = new CreatePlaylistDialogFragment();
+            dialog.show(getParentFragmentManager(), "CreatePlaylistDialog");
+        } catch (Exception e) {
+            // Log the error and show a toast
+            e.printStackTrace();
+            Toast.makeText(getContext(), "Error opening playlist creator: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     private void openPlaylist(String playlistName) {
