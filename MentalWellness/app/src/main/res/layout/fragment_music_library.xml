@@ -1,380 +1,956 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@android:color/white"
-    android:padding="16dp">
+    android:fillViewport="true">
 
-    <!-- Header -->
-    <TextView
-        android:id="@+id/tvLibraryTitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:text="Your Library"
-        android:textColor="#2E2E2E"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:fontFamily="sans-serif"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <TextView
-        android:id="@+id/tvLibrarySubtitle"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:text="Curate your personal space for mental well-being"
-        android:textColor="#5C5C5C"
-        android:textSize="14sp"
-        android:fontFamily="sans-serif"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvLibraryTitle" />
-
-    <!-- Tabs -->
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tvLibrarySubtitle"
-        app:tabMode="fixed"
-        app:tabSelectedTextColor="@color/colorOrange"
-        app:tabIndicatorColor="@color/colorOrange">
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="All" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Recently Played" />
-
-        <com.google.android.material.tabs.TabItem
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Favorites" />
-    </com.google.android.material.tabs.TabLayout>
-
-    <!-- Create Playlist Button -->
-    <Button
-        android:id="@+id/btnCreatePlaylist"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:background="@drawable/rounded_button_background"
-        android:text="+ Create New Playlist"
-        android:textAllCaps="false"
-        android:textColor="@android:color/white"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
-
-    <!-- Fragment Container for Recently Played and Favorites tabs -->
-    <FrameLayout
-        android:id="@+id/fragmentContainer"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        android:visibility="gone"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnCreatePlaylist" />
-
-    <!-- Main Content Container for the "All" tab -->
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/mainContent"
-        android:layout_width="0dp"
-        android:layout_height="0dp"
-        android:layout_marginTop="16dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btnCreatePlaylist">
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:padding="16dp">
 
-        <!-- Playlists Section -->
+        <!-- Header -->
         <TextView
-            android:id="@+id/tvSuggestedPlaylists"
+            android:id="@+id/tvLibraryTitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Suggested Playlists"
+            android:text="Your Library"
             android:textColor="#2E2E2E"
-            android:textSize="18sp"
+            android:textSize="24sp"
             android:textStyle="bold"
+            android:fontFamily="sans-serif"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <!-- Playlist Cards -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardZenPlaylist"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="16dp"
-            android:layout_marginEnd="8dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toStartOf="@+id/cardMorningPlaylist"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvSuggestedPlaylists">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:background="#FFEFEF">
-
-                <TextView
-                    android:id="@+id/tvZenTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="My Zen Space"
-                    android:textColor="#2E2E2E"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tvZenTracks"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="12 Tracks"
-                    android:textColor="#5C5C5C"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvZenTitle" />
-
-                <ImageView
-                    android:id="@+id/ivZenThumbnail"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginTop="8dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_meditation_simple"
-                    android:tint="#FF7E7E"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvZenTracks" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardMorningPlaylist"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="16dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="4dp"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.5"
-            app:layout_constraintStart_toEndOf="@+id/cardZenPlaylist"
-            app:layout_constraintTop_toBottomOf="@+id/tvSuggestedPlaylists">
-
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:background="#FFF9E7">
-
-                <TextView
-                    android:id="@+id/tvMorningTitle"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Morning Energy"
-                    android:textColor="#2E2E2E"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <TextView
-                    android:id="@+id/tvMorningTracks"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="8 Tracks"
-                    android:textColor="#5C5C5C"
-                    android:textSize="12sp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvMorningTitle" />
-
-                <ImageView
-                    android:id="@+id/ivMorningThumbnail"
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:layout_marginTop="8dp"
-                    android:scaleType="centerCrop"
-                    android:src="@drawable/ic_meditation_simple"
-                    android:tint="#FFCB6D"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvMorningTracks" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <!-- Recently Played Section -->
         <TextView
-            android:id="@+id/tvRecentlyPlayed"
+            android:id="@+id/tvLibrarySubtitle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="24dp"
-            android:text="Recently Played"
-            android:textColor="#2E2E2E"
-            android:textSize="18sp"
-            android:textStyle="bold"
+            android:layout_marginTop="4dp"
+            android:text="Curate your personal space for mental well-being"
+            android:textColor="#5C5C5C"
+            android:textSize="14sp"
+            android:fontFamily="sans-serif"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardZenPlaylist" />
+            app:layout_constraintTop_toBottomOf="@+id/tvLibraryTitle" />
 
-        <!-- Recently Played Items -->
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardTrack1"
+        <!-- Tabs -->
+        <com.google.android.material.tabs.TabLayout
+            android:id="@+id/tabLayout"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            android:layout_marginTop="16dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/tvRecentlyPlayed">
+            app:layout_constraintTop_toBottomOf="@+id/tvLibrarySubtitle"
+            app:tabMode="fixed"
+            app:tabSelectedTextColor="@color/colorOrange"
+            app:tabIndicatorColor="@color/colorOrange">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:background="#F8F8F8">
+                android:text="All" />
 
-                <TextView
-                    android:id="@+id/tvTrack1Title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="Peaceful Rain"
-                    android:textColor="#2E2E2E"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/tvTrack1Duration"
-                    app:layout_constraintStart_toEndOf="@+id/fabTrack1Play"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Recently Played" />
 
-                <TextView
-                    android:id="@+id/tvTrack1Subtitle"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="Nature Sounds"
-                    android:textColor="#5C5C5C"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toStartOf="@+id/tvTrack1Duration"
-                    app:layout_constraintStart_toEndOf="@+id/fabTrack1Play"
-                    app:layout_constraintTop_toBottomOf="@+id/tvTrack1Title" />
+            <com.google.android.material.tabs.TabItem
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Favorites" />
+        </com.google.android.material.tabs.TabLayout>
 
-                <TextView
-                    android:id="@+id/tvTrack1Duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3:45"
-                    android:textColor="#5C5C5C"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fabTrack1Play"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:backgroundTint="@android:color/white"
-                    app:borderWidth="0dp"
-                    app:elevation="1dp"
-                    app:fabCustomSize="32dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_play"
-                    app:tint="#2E2E2E" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
-
-        <androidx.cardview.widget.CardView
-            android:id="@+id/cardTrack2"
+        <!-- Create Playlist Button -->
+        <Button
+            android:id="@+id/btnCreatePlaylist"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="2dp"
+            android:layout_marginTop="32dp"
+            android:background="@drawable/rounded_button_background"
+            android:text="+ Create New Playlist"
+            android:textAllCaps="false"
+            android:textColor="@android:color/white"
+            android:padding="12dp"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cardTrack1">
+            app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
+        <!-- Fragment Container for Recently Played and Favorites tabs -->
+        <FrameLayout
+            android:id="@+id/fragmentContainer"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            android:visibility="gone"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnCreatePlaylist" />
+
+        <!-- Main Content Container for the "All" tab -->
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/mainContent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="32dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/btnCreatePlaylist">
+
+            <!-- Playlists Section -->
+            <TextView
+                android:id="@+id/tvSuggestedPlaylists"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:padding="16dp"
-                android:background="#F8F8F8">
+                android:text="Suggested Playlists"
+                android:textColor="#2E2E2E"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-                <TextView
-                    android:id="@+id/tvTrack2Title"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="Fearless Spirit"
-                    android:textColor="#2E2E2E"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    app:layout_constraintEnd_toStartOf="@+id/tvTrack2Duration"
-                    app:layout_constraintStart_toEndOf="@+id/fabTrack2Play"
-                    app:layout_constraintTop_toTopOf="parent" />
+            <!-- Playlist Cards -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardZenPlaylist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:layout_constraintEnd_toStartOf="@+id/cardMorningPlaylist"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvSuggestedPlaylists">
 
-                <TextView
-                    android:id="@+id/tvTrack2Subtitle"
-                    android:layout_width="0dp"
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="16dp"
-                    android:layout_marginEnd="16dp"
-                    android:text="Motivational"
-                    android:textColor="#5C5C5C"
-                    android:textSize="12sp"
-                    app:layout_constraintEnd_toStartOf="@+id/tvTrack2Duration"
-                    app:layout_constraintStart_toEndOf="@+id/fabTrack2Play"
-                    app:layout_constraintTop_toBottomOf="@+id/tvTrack2Title" />
+                    android:padding="16dp"
+                    android:background="#FFEFEF">
 
-                <TextView
-                    android:id="@+id/tvTrack2Duration"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="3:11"
-                    android:textColor="#5C5C5C"
-                    android:textSize="12sp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    <TextView
+                        android:id="@+id/tvZenTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="My Zen Space"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
-                <com.google.android.material.floatingactionbutton.FloatingActionButton
-                    android:id="@+id/fabTrack2Play"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:id="@+id/tvZenTracks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="12 Tracks"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvZenTitle" />
+
+                    <ImageView
+                        android:id="@+id/ivZenThumbnail"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_marginTop="8dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_meditation_simple"
+                        android:tint="#FF7E7E"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvZenTracks" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardMorningPlaylist"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="8dp"
+                android:layout_marginTop="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="4dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="0.5"
+                app:layout_constraintStart_toEndOf="@+id/cardZenPlaylist"
+                app:layout_constraintTop_toBottomOf="@+id/tvSuggestedPlaylists">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:backgroundTint="@android:color/white"
-                    app:borderWidth="0dp"
-                    app:elevation="1dp"
-                    app:fabCustomSize="32dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:srcCompat="@drawable/ic_play"
-                    app:tint="#2E2E2E" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
-        </androidx.cardview.widget.CardView>
+                    android:padding="16dp"
+                    android:background="#FFF9E7">
+
+                    <TextView
+                        android:id="@+id/tvMorningTitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Morning Energy"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvMorningTracks"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="8 Tracks"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvMorningTitle" />
+
+                    <ImageView
+                        android:id="@+id/ivMorningThumbnail"
+                        android:layout_width="80dp"
+                        android:layout_height="80dp"
+                        android:layout_marginTop="8dp"
+                        android:scaleType="centerCrop"
+                        android:src="@drawable/ic_meditation_simple"
+                        android:tint="#FFCB6D"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toBottomOf="@+id/tvMorningTracks" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Recently Played Section -->
+            <TextView
+                android:id="@+id/tvRecentlyPlayed"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="24dp"
+                android:text="Recently Played"
+                android:textColor="#2E2E2E"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardZenPlaylist" />
+
+            <!-- Recently Played Items -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tvRecentlyPlayed">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack1Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Peaceful Rain"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack1Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack1Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack1Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Nature Sounds"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack1Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack1Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack1Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack1Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3:45"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack1Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack1">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack2Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Fearless Spirit"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack2Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack2Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack2Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Motivational"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack2Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack2Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack2Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack2Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3:11"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack2Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Additional tracks for scrolling -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack3"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack2">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack3Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Ocean Waves"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack3Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack3Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack3Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Deep Relaxation"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack3Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack3Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack3Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack3Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="5:23"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack3Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack4"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack3">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack4Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Mindful Meditation"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack4Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack4Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack4Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Guided Meditation"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack4Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack4Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack4Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack4Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="10:15"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack4Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack5"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack4">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack5Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Forest Serenity"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack5Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack5Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack5Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Nature Sounds"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack5Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack5Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack5Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack5Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4:52"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack5Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack6"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack5">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack6Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Calm Piano"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack6Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack6Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack6Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Soothing Melodies"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack6Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack6Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack6Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack6Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="3:42"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack6Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <!-- Additional tracks for ensuring scrolling -->
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack7"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack6">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack7Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Positive Affirmations"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack7Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack7Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack7Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Self-Improvement"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack7Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack7Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack7Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack7Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="8:15"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack7Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack8"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack7">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack8Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Thunderstorm Ambiance"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack8Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack8Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack8Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Weather Sounds"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack8Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack8Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack8Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack8Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="6:34"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack8Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack9"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack8">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack9Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Gentle Sunrise"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack9Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack9Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack9Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Morning Rituals"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack9Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack9Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack9Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack9Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="4:27"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack9Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+
+            <androidx.cardview.widget.CardView
+                android:id="@+id/cardTrack10"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:layout_marginBottom="16dp"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="2dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/cardTrack9"
+                app:layout_constraintBottom_toBottomOf="parent">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:padding="16dp"
+                    android:background="#F8F8F8">
+
+                    <TextView
+                        android:id="@+id/tvTrack10Title"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Stress Relief"
+                        android:textColor="#2E2E2E"
+                        android:textSize="16sp"
+                        android:textStyle="bold"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack10Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack10Play"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/tvTrack10Subtitle"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="16dp"
+                        android:text="Anxiety Reduction"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintEnd_toStartOf="@+id/tvTrack10Duration"
+                        app:layout_constraintStart_toEndOf="@+id/fabTrack10Play"
+                        app:layout_constraintTop_toBottomOf="@+id/tvTrack10Title" />
+
+                    <TextView
+                        android:id="@+id/tvTrack10Duration"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="7:19"
+                        android:textColor="#5C5C5C"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <com.google.android.material.floatingactionbutton.FloatingActionButton
+                        android:id="@+id/fabTrack10Play"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:backgroundTint="@android:color/white"
+                        app:borderWidth="0dp"
+                        app:elevation="1dp"
+                        app:fabCustomSize="32dp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:srcCompat="@drawable/ic_play"
+                        app:tint="#2E2E2E" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
+            </androidx.cardview.widget.CardView>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </androidx.constraintlayout.widget.ConstraintLayout>
-
-</androidx.constraintlayout.widget.ConstraintLayout> 
+</ScrollView> 

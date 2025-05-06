@@ -13,12 +13,10 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.DialogFragment;
 
 import com.google.android.material.textfield.TextInputEditText;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.krishna.navbar.R;
-import com.krishna.navbar.models.Track;
 import com.krishna.navbar.models.UserPlaylist;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * DialogFragment for creating a new playlist
@@ -70,6 +68,14 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                 return;
             }
             
+            // Check if user is authenticated
+            FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
+            if (currentUser == null) {
+                Toast.makeText(getContext(), "You need to sign in to create playlists", Toast.LENGTH_SHORT).show();
+                dismiss();
+                return;
+            }
+            
             // Get selected color
             int checkedId = radioGroupColors.getCheckedRadioButtonId();
             String selectedColor = COLOR_BLUE; // Default
@@ -88,10 +94,7 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                 selectedColor = COLOR_TEAL;
             }
             
-            // Create playlist with empty tracks for demo
-            List<Track> emptyTracks = new ArrayList<>();
-            
-            // Create the new playlist
+            // Create the new playlist with empty songs list
             UserPlaylist newPlaylist = new UserPlaylist(playlistName, selectedColor);
             
             // Notify listener that a playlist was created
@@ -99,7 +102,6 @@ public class CreatePlaylistDialogFragment extends DialogFragment {
                 listener.onPlaylistCreated(newPlaylist);
             }
             
-            Toast.makeText(getContext(), "Playlist '" + playlistName + "' created", Toast.LENGTH_SHORT).show();
             dismiss();
         });
         

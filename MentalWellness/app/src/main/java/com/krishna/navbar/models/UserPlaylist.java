@@ -1,20 +1,70 @@
 package com.krishna.navbar.models;
 
+import com.google.firebase.Timestamp;
+import com.google.firebase.firestore.DocumentId;
+import com.google.firebase.firestore.Exclude;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 public class UserPlaylist {
+    @DocumentId
+    private String id;
     private String name;
     private String colorTheme;
     private int trackCount;
+    private Timestamp createdAt;
+    private List<Song> songs;
+
+    // Empty constructor for Firestore
+    public UserPlaylist() {
+        this.songs = new ArrayList<>();
+    }
 
     public UserPlaylist(String name, String colorTheme) {
         this.name = name;
         this.colorTheme = colorTheme;
         this.trackCount = 0; // Default to 0 tracks
+        this.createdAt = Timestamp.now();
+        this.songs = new ArrayList<>();
     }
 
     public UserPlaylist(String name, String colorTheme, int trackCount) {
         this.name = name;
         this.colorTheme = colorTheme;
         this.trackCount = trackCount;
+        this.createdAt = Timestamp.now();
+        this.songs = new ArrayList<>();
+    }
+
+    // Convert this UserPlaylist object to a Map for Firestore
+    public Map<String, Object> toMap() {
+        HashMap<String, Object> map = new HashMap<>();
+        map.put("name", name);
+        map.put("colorTheme", colorTheme);
+        map.put("trackCount", trackCount);
+        map.put("createdAt", createdAt);
+        
+        // Add songs as a list of maps
+        List<Map<String, Object>> songsList = new ArrayList<>();
+        if (songs != null) {
+            for (Song song : songs) {
+                songsList.add(song.toMap());
+            }
+        }
+        map.put("songs", songsList);
+        
+        return map;
+    }
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -41,7 +91,40 @@ public class UserPlaylist {
         this.trackCount = trackCount;
     }
     
+    public Timestamp getCreatedAt() {
+        return createdAt;
+    }
+
+    public void setCreatedAt(Timestamp createdAt) {
+        this.createdAt = createdAt;
+    }
+
+    public List<Song> getSongs() {
+        return songs;
+    }
+
+    public void setSongs(List<Song> songs) {
+        this.songs = songs;
+        this.trackCount = songs != null ? songs.size() : 0;
+    }
+
+    public void addSong(Song song) {
+        if (this.songs == null) {
+            this.songs = new ArrayList<>();
+        }
+        this.songs.add(song);
+        this.trackCount = this.songs.size();
+    }
+
+    public void removeSong(Song song) {
+        if (this.songs != null) {
+            this.songs.remove(song);
+            this.trackCount = this.songs.size();
+        }
+    }
+    
     // Get the resource ID for the background drawable based on the color theme
+    @Exclude
     public int getBackgroundResourceId() {
         switch (colorTheme) {
             case "blue":
@@ -62,6 +145,7 @@ public class UserPlaylist {
     }
     
     // Get the color resource ID for the play button tint based on the color theme
+    @Exclude
     public int getColorTint() {
         switch (colorTheme) {
             case "blue":

@@ -57,6 +57,19 @@
             android:textSize="14sp"
             android:textStyle="bold"
             app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/btnFavorite"
+            app:layout_constraintTop_toTopOf="parent" />
+            
+        <ImageButton
+            android:id="@+id/btnFavorite"
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginEnd="16dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:contentDescription="Add to favorites"
+            android:src="@android:drawable/btn_star_big_off"
+            android:tint="#888888"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@+id/fabTrackPlay"
             app:layout_constraintTop_toTopOf="parent" />
 

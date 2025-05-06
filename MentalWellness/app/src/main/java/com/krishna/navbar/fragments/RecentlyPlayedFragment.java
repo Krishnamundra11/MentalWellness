@@ -1,6 +1,7 @@
 package com.krishna.navbar.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,9 +22,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RecentlyPlayedFragment extends Fragment {
+    private static final String TAG = "RecentlyPlayedFragment";
 
     private RecyclerView rvRecentTracks;
     private TextView tvEmptyState;
+    private List<Track> recentTracks = new ArrayList<>();
+    private TrackAdapter adapter;
 
     @Nullable
     @Override
@@ -32,6 +36,12 @@ public class RecentlyPlayedFragment extends Fragment {
         setupUI(view);
         return view;
     }
+    
+    @Override
+    public void onResume() {
+        super.onResume();
+        refreshContent();
+    }
 
     private void setupUI(View view) {
         rvRecentTracks = view.findViewById(R.id.rvRecentTracks);
@@ -39,22 +49,52 @@ public class RecentlyPlayedFragment extends Fragment {
 
         rvRecentTracks.setLayoutManager(new LinearLayoutManager(getContext()));
         
-        // Get recently played tracks
-        List<Track> recentTracks = getRecentlyPlayedTracks();
+        // Initialize the adapter with empty list
+        adapter = new TrackAdapter(recentTracks, position -> {
+            if (position >= 0 && position < recentTracks.size()) {
+                Track track = recentTracks.get(position);
+                playTrack(track.getTitle(), track.getArtist());
+            }
+        });
         
+        rvRecentTracks.setAdapter(adapter);
+        
+        // Load the content
+        refreshContent();
+    }
+    
+    /**
+     * Public method to refresh content
+     */
+    public void refreshContent() {
+        try {
+            Log.d(TAG, "Refreshing recently played tracks");
+            
+            // Get recently played tracks
+            List<Track> freshTracks = getRecentlyPlayedTracks();
+            
+            // Update the list
+            recentTracks.clear();
+            recentTracks.addAll(freshTracks);
+            
+            // Update UI
+            if (adapter != null) {
+                adapter.notifyDataSetChanged();
+            }
+            
+            updateEmptyState();
+        } catch (Exception e) {
+            Log.e(TAG, "Error refreshing content", e);
+        }
+    }
+    
+    private void updateEmptyState() {
         if (recentTracks.isEmpty()) {
             tvEmptyState.setVisibility(View.VISIBLE);
             rvRecentTracks.setVisibility(View.GONE);
         } else {
             tvEmptyState.setVisibility(View.GONE);
             rvRecentTracks.setVisibility(View.VISIBLE);
-            
-            TrackAdapter adapter = new TrackAdapter(recentTracks, position -> {
-                Track track = recentTracks.get(position);
-                playTrack(track.getTitle(), track.getArtist());
-            });
-            
-            rvRecentTracks.setAdapter(adapter);
         }
     }
     

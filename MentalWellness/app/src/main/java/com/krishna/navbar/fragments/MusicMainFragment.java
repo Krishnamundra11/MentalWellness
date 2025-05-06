@@ -1,12 +1,14 @@
 package com.krishna.navbar.fragments;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,8 +19,15 @@ import androidx.constraintlayout.widget.ConstraintLayout;
 import com.google.android.material.chip.Chip;
 import com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.EventListener;
+import com.google.firebase.firestore.FirebaseFirestoreException;
+import com.google.firebase.firestore.QuerySnapshot;
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.UserPlaylist;
+import com.krishna.navbar.utils.FirebasePlaylistManager;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -27,6 +36,7 @@ import java.util.Map;
 
 public class MusicMainFragment extends Fragment implements CreatePlaylistDialogFragment.OnPlaylistCreatedListener {
 
+    private static final String TAG = "MusicMainFragment";
     private boolean isFilterActive = false;
     private String currentCategory = "All";
     
@@ -43,6 +53,10 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
     
     // List to store user-created playlists
     private List<UserPlaylist> userPlaylists = new ArrayList<>();
+    
+    // Firebase components
+    private FirebaseAuth firebaseAuth;
+    private FirebasePlaylistManager playlistManager;
     
     // Map to store standardized playlist names
     private static final Map<String, String> playlistNameMap = new HashMap<>();
@@ -71,9 +85,32 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_music_main, container, false);
+        
+        // Initialize Firebase components
+        firebaseAuth = FirebaseAuth.getInstance();
+        playlistManager = FirebasePlaylistManager.getInstance();
+        
         setupUI(view);
         setupBackButtonHandling();
+        
+        // Load user playlists from Firebase
+        loadUserPlaylistsFromFirebase();
+        
+        // Set up Firebase playlist listener for real-time updates
+        setupFirebasePlaylistListener();
+        
         return view;
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        
+        // Load playlists from Firebase when fragment becomes visible
+        loadUserPlaylistsFromFirebase();
+        
+        // Set up real-time listener for playlist updates
+        setupFirebasePlaylistListener();
     }
 
     private void setupBackButtonHandling() {
@@ -112,7 +149,15 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
         
         // Set up Create Playlist button
         ExtendedFloatingActionButton fabCreatePlaylist = view.findViewById(R.id.fabCreatePlaylist);
-        fabCreatePlaylist.setOnClickListener(v -> showCreatePlaylistDialog());
+        fabCreatePlaylist.setOnClickListener(v -> {
+            // Check if user is authenticated
+            if (firebaseAuth.getCurrentUser() != null) {
+                showCreatePlaylistDialog();
+            } else {
+                Toast.makeText(getContext(), "You need to sign in to create playlists", Toast.LENGTH_SHORT).show();
+                // You could redirect to login here
+            }
+        });
         
         // Set up library button
         ImageButton btnLibrary = view.findViewById(R.id.btnLibrary);
@@ -344,26 +389,74 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
     }
 
     private void openPlaylist(String playlistName) {
-        // Open playlist fragment with list of tracks
-        PlaylistFragment playlistFragment = new PlaylistFragment();
-        Bundle args = new Bundle();
-        args.putString("playlistName", getStandardPlaylistName(playlistName));
-        playlistFragment.setArguments(args);
+        // Check if it's a user playlist
+        UserPlaylist userPlaylist = findUserPlaylistByName(playlistName);
+        
+        if (userPlaylist != null) {
+            // This is a user playlist, open it from Firestore
+            openUserPlaylist(userPlaylist);
+        } else {
+            // This is a default playlist, use the legacy approach
+            PlaylistFragment playlistFragment = new PlaylistFragment();
+            Bundle args = new Bundle();
+            args.putString("playlistName", getStandardPlaylistName(playlistName));
+            playlistFragment.setArguments(args);
 
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.con, playlistFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+    
+    private void openUserPlaylist(UserPlaylist playlist) {
+        // Create fragment to show user playlist
+        UserPlaylistFragment userPlaylistFragment = new UserPlaylistFragment();
+        Bundle args = new Bundle();
+        args.putString("playlistId", playlist.getId());
+        userPlaylistFragment.setArguments(args);
+        
         getParentFragmentManager().beginTransaction()
-                .replace(R.id.con, playlistFragment)
+                .replace(R.id.con, userPlaylistFragment)
                 .addToBackStack(null)
                 .commit();
     }
 
     private void playPlaylist(String playlistName) {
-        // Start playing the first track in the playlist
-        PlayerFragment playerFragment = new PlayerFragment();
-        Bundle args = new Bundle();
-        args.putString("playlistName", getStandardPlaylistName(playlistName));
-        args.putInt("trackIndex", 0);
-        playerFragment.setArguments(args);
+        // Check if it's a user playlist
+        UserPlaylist userPlaylist = findUserPlaylistByName(playlistName);
+        
+        if (userPlaylist != null && userPlaylist.getSongs() != null && !userPlaylist.getSongs().isEmpty()) {
+            // This is a user playlist with songs, play the first song
+            playUserPlaylistTrack(userPlaylist, 0);
+        } else {
+            // This is a default playlist or empty user playlist, use the legacy approach
+            PlayerFragment playerFragment = new PlayerFragment();
+            Bundle args = new Bundle();
+            args.putString("playlistName", getStandardPlaylistName(playlistName));
+            args.putInt("trackIndex", 0);
+            playerFragment.setArguments(args);
 
+            getParentFragmentManager().beginTransaction()
+                    .replace(R.id.con, playerFragment)
+                    .addToBackStack(null)
+                    .commit();
+        }
+    }
+    
+    private void playUserPlaylistTrack(UserPlaylist playlist, int trackIndex) {
+        if (playlist.getSongs() == null || playlist.getSongs().isEmpty() || trackIndex >= playlist.getSongs().size()) {
+            Toast.makeText(getContext(), "No tracks available in this playlist", Toast.LENGTH_SHORT).show();
+            return;
+        }
+        
+        // Start the PlayerFragment with the Firebase song
+        FirebasePlayerFragment playerFragment = new FirebasePlayerFragment();
+        Bundle args = new Bundle();
+        args.putString("playlistId", playlist.getId());
+        args.putInt("trackIndex", trackIndex);
+        playerFragment.setArguments(args);
+        
         getParentFragmentManager().beginTransaction()
                 .replace(R.id.con, playerFragment)
                 .addToBackStack(null)
@@ -378,17 +471,104 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
     
     @Override
     public void onPlaylistCreated(UserPlaylist playlist) {
-        // Add the new playlist to both the user playlist list and the standardization map
-        userPlaylists.add(playlist);
-        playlistNameMap.put(playlist.getName(), playlist.getName());
-        
-        // Update the UI to show the new playlist
-        updateMyPlaylistUI();
-        
-        // If we're in All view, also add the playlist to the All category
-        if (currentCategory.equals("All")) {
-            addPlaylistToAllCategory(playlist);
+        // Save the new playlist to Firebase
+        playlistManager.savePlaylist(playlist, new FirebasePlaylistManager.OnPlaylistSavedListener() {
+            @Override
+            public void onPlaylistSaved(UserPlaylist savedPlaylist, Exception exception) {
+                if (exception == null) {
+                    // Saved successfully
+                    Toast.makeText(getContext(), "Playlist '" + savedPlaylist.getName() + "' created", Toast.LENGTH_SHORT).show();
+                    
+                    // Add the playlist to our local list to ensure immediate UI update
+                    userPlaylists.add(savedPlaylist);
+                    playlistNameMap.put(savedPlaylist.getName(), savedPlaylist.getName());
+                    
+                    // Switch to My Playlist category to show the new playlist
+                    currentCategory = "MyPlaylist";
+                    filterCategory("MyPlaylist");
+                    
+                    // The Firebase listener will update the UI when the data is synced
+                } else {
+                    // Error saving
+                    Toast.makeText(getContext(), "Error creating playlist: " + exception.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "Error saving playlist", exception);
+                }
+            }
+        });
+    }
+    
+    private void loadUserPlaylistsFromFirebase() {
+        // Check if user is authenticated
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.d(TAG, "User not authenticated, skipping playlist load");
+            return;
         }
+        
+        // Load playlists from Firestore
+        playlistManager.getAllPlaylists(new FirebasePlaylistManager.OnPlaylistsLoadedListener() {
+            @Override
+            public void onPlaylistsLoaded(List<UserPlaylist> playlists, Exception exception) {
+                if (exception == null) {
+                    // Update the playlist list
+                    userPlaylists.clear();
+                    userPlaylists.addAll(playlists);
+                    
+                    // Add playlist names to the standardization map
+                    for (UserPlaylist playlist : playlists) {
+                        playlistNameMap.put(playlist.getName(), playlist.getName());
+                    }
+                    
+                    // Update the UI
+                    updateMyPlaylistUI();
+                    
+                    Log.d(TAG, "Loaded " + playlists.size() + " playlists from Firebase");
+                } else {
+                    // Error loading playlists
+                    Log.e(TAG, "Error loading playlists from Firebase", exception);
+                    Toast.makeText(getContext(), "Error loading playlists", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+    
+    private void setupFirebasePlaylistListener() {
+        // Check if user is authenticated
+        FirebaseUser currentUser = firebaseAuth.getCurrentUser();
+        if (currentUser == null) {
+            Log.d(TAG, "User not authenticated, skipping playlist listener setup");
+            return;
+        }
+        
+        // Set up real-time listener
+        playlistManager.listenForPlaylistUpdates(new EventListener<QuerySnapshot>() {
+            @Override
+            public void onEvent(@Nullable QuerySnapshot value, @Nullable FirebaseFirestoreException error) {
+                if (error != null) {
+                    Log.e(TAG, "Error listening for playlist updates", error);
+                    return;
+                }
+                
+                if (value != null) {
+                    // Clear existing playlists
+                    userPlaylists.clear();
+                    
+                    // Add each playlist from the snapshot
+                    for (DocumentSnapshot document : value.getDocuments()) {
+                        UserPlaylist playlist = playlistManager.convertDocumentToPlaylist(document);
+                        if (playlist != null) {
+                            userPlaylists.add(playlist);
+                            playlistNameMap.put(playlist.getName(), playlist.getName());
+                        }
+                    }
+                    
+                    // Update UI with new playlist data
+                    updateMyPlaylistUI();
+                    
+                    Log.d(TAG, "Real-time update: " + userPlaylists.size() + " playlists");
+                }
+            }
+        });
     }
     
     private void updateMyPlaylistUI() {
@@ -437,8 +617,15 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
         userPlaylistsContainer.addView(playlistView);
     }
     
-    private void addPlaylistToAllCategory(UserPlaylist playlist) {
-        // In a real app, this would dynamically add a new playlist card to the All category
-        // For this demo, we'll just update the UI when switching categories
+    /**
+     * Helper method to find a user playlist by name
+     */
+    private UserPlaylist findUserPlaylistByName(String name) {
+        for (UserPlaylist playlist : userPlaylists) {
+            if (playlist.getName().equals(name)) {
+                return playlist;
+            }
+        }
+        return null;
     }
 } 

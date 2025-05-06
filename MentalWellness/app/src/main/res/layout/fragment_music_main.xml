@@ -1383,18 +1383,19 @@
                     app:iconTint="@android:color/white"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/tvEmptyPlaylist" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <!-- Container for user-created playlists (Initially empty) -->
                 <LinearLayout
                     android:id="@+id/userPlaylistsContainer"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="16dp"
+                    android:layout_marginTop="32dp"
                     android:orientation="vertical"
+                    android:paddingTop="16dp"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    app:layout_constraintTop_toBottomOf="@+id/fabCreatePlaylist">
                     
                     <!-- User playlists will be added here dynamically -->
                     
