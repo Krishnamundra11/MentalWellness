@@ -68,7 +68,10 @@
             android:layout_width="120dp"
             android:layout_height="120dp"
             android:layout_marginTop="16dp"
-            android:src="@drawable/therapist_3"
+            android:src="@drawable/placeholder_person"
+            android:scaleType="centerCrop"
+            app:civ_border_width="0dp"
+            app:civ_border_color="#FFFFFF"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/toolbar" />
@@ -158,7 +161,7 @@
                 android:paddingEnd="16dp"
                 android:text="Online"
                 android:textAllCaps="false"
-                android:textColor="#9D7E67" />
+                android:textColor="#FFFFFF" />
 
             <Button
                 android:id="@+id/btn_in_person"
@@ -172,7 +175,7 @@
                 android:paddingEnd="16dp"
                 android:text="In-Person"
                 android:textAllCaps="false"
-                android:textColor="#9D7E67" />
+                android:textColor="#FFFFFF" />
         </LinearLayout>
 
         <!-- Statistics Section -->

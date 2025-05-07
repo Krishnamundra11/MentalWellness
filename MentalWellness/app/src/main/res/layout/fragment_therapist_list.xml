@@ -103,7 +103,7 @@
                 android:background="@drawable/bg_tab_active"
                 android:text="All Specialists"
                 android:textAllCaps="false"
-                android:textColor="#9D7E67" />
+                android:textColor="#FFFFFF" />
 
             <Button
                 android:id="@+id/btn_psychologists"
@@ -111,9 +111,9 @@
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="8dp"
                 android:background="@drawable/bg_tab_inactive"
-                android:text="Psychologists"
+                android:text="Therapist"
                 android:textAllCaps="false"
-                android:textColor="#9D7E67" />
+                android:textColor="#FFFFFF" />
 
             <Button
                 android:id="@+id/btn_psychiatrists"
@@ -123,7 +123,7 @@
                 android:background="@drawable/bg_tab_inactive"
                 android:text="Psychiatrists"
                 android:textAllCaps="false"
-                android:textColor="#9D7E67" />
+                android:textColor="#FFFFFF" />
         </LinearLayout>
     </HorizontalScrollView>
 

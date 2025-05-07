@@ -3,8 +3,8 @@
     <!-- Base application theme. -->
     <style name="Theme.MentalWellness" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <!-- Primary brand color -->
-        <item name="colorPrimary">#A8E4A0</item>
-        <item name="colorPrimaryVariant">#8BC34A</item>
+        <item name="colorPrimary">#E4A478</item>
+        <item name="colorPrimaryVariant">#E4A478</item>
         <item name="colorOnPrimary">#FFFFFF</item>
         <!-- Secondary brand color -->
         <item name="colorSecondary">#FFB4A1</item>

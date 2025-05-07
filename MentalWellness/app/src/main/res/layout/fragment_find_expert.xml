@@ -6,6 +6,14 @@
     android:layout_height="match_parent"
     android:background="#FEF6F0">
 
+    <!-- Top Bar -->
+    <androidx.appcompat.widget.Toolbar
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/background"
+        app:layout_constraintTop_toTopOf="parent" />
+
     <!-- Back Button -->
     <ImageButton
         android:id="@+id/btn_back"
@@ -61,7 +69,7 @@
             android:paddingEnd="24dp"
             android:text="Therapist"
             android:textAllCaps="false"
-            android:textColor="#9D7E67" />
+            android:textColor="#FFFFFF" />
 
         <Button
             android:id="@+id/btn_psychiatrist"
@@ -76,7 +84,7 @@
             android:paddingEnd="24dp"
             android:text="Psychiatrist"
             android:textAllCaps="false"
-            android:textColor="#9D7E67" />
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 
     <!-- Card with Call to Action -->
@@ -196,7 +204,7 @@
             android:drawablePadding="8dp"
             android:text="Filters"
             android:textAllCaps="false"
-            android:textColor="#9D7E67" />
+            android:textColor="#FFFFFF" />
     </LinearLayout>
 
     <!-- FIND Button -->

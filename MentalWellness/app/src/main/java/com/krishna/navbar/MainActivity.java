@@ -29,13 +29,13 @@ import com.google.firebase.FirebaseApp;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int ID_MUSIC = 1;
-    private static final int ID_MEDITATE = 2;
-    private static final int ID_HOME = 3;
-    private static final int ID_THERAPY = 4;
-    private static final int ID_PROFILE = 5;
+    public static final int ID_MUSIC = 1;
+    public static final int ID_MEDITATE = 2;
+    public static final int ID_HOME = 3;
+    public static final int ID_THERAPY = 4;
+    public static final int ID_PROFILE = 5;
     
-    NafisBottomNavigation bottomNavigation;
+    public NafisBottomNavigation bottomNavigation;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -147,7 +147,7 @@ public class MainActivity extends AppCompatActivity {
         }
     }
     
-    private void loadFragment(Fragment fragment) {
+    public void loadFragment(Fragment fragment) {
         getSupportFragmentManager().beginTransaction()
                 .replace(R.id.con, fragment)
                 .commit();

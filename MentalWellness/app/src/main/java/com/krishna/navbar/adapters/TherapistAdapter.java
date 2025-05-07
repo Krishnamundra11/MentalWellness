@@ -6,9 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
-import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +23,8 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.ArrayList;
+
+import de.hdodenhof.circleimageview.CircleImageView;
 
 public class TherapistAdapter extends RecyclerView.Adapter<TherapistAdapter.TherapistViewHolder> {
     
@@ -57,9 +57,15 @@ public class TherapistAdapter extends RecyclerView.Adapter<TherapistAdapter.Ther
         
         // Load image from URL if available, otherwise use placeholder
         if (therapist.getProfileImageUrl() != null && !therapist.getProfileImageUrl().isEmpty()) {
-            Glide.with(context).load(therapist.getProfileImageUrl()).into(holder.imgProfile);
+            Glide.with(context)
+                .load(therapist.getProfileImageUrl())
+                .placeholder(R.drawable.placeholder_person)
+                .error(R.drawable.placeholder_person)
+                .centerCrop()
+                .diskCacheStrategy(com.bumptech.glide.load.engine.DiskCacheStrategy.ALL)
+                .into(holder.imgProfile);
         } else {
-            holder.imgProfile.setImageResource(R.drawable.placeholder_therapist);
+            holder.imgProfile.setImageResource(R.drawable.placeholder_person);
         }
 
         // Set text fields
@@ -174,7 +180,7 @@ public class TherapistAdapter extends RecyclerView.Adapter<TherapistAdapter.Ther
     }
     
     static class TherapistViewHolder extends RecyclerView.ViewHolder {
-        ImageView imgProfile;
+        CircleImageView imgProfile;
         TextView tvName, tvSpecialization, tvRating, tvReviews, tvNextAvailable;
         Chip chipExperience, chipLanguages;
         Button btnViewProfile;

@@ -249,4 +249,19 @@ public class FirestoreHelper {
                 .document(bookingId)
                 .update("addedToCalendar", addedToCalendar);
     }
+
+    // Get all therapists without any filters
+    public Task<QuerySnapshot> getAllTherapists() {
+        return db.collection(THERAPISTS_COLLECTION).get();
+    }
+
+    // Add a new therapist
+    public Task<DocumentReference> addTherapist(Therapist therapist) {
+        return db.collection(THERAPISTS_COLLECTION).add(therapist);
+    }
+
+    // Delete a therapist
+    public Task<Void> deleteTherapist(String therapistId) {
+        return db.collection(THERAPISTS_COLLECTION).document(therapistId).delete();
+    }
 } 

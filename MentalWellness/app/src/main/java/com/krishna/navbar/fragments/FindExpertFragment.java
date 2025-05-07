@@ -6,6 +6,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.Toast;
 
@@ -13,6 +14,7 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
+import com.krishna.navbar.MainActivity;
 import com.krishna.navbar.R;
 
 public class FindExpertFragment extends Fragment {
@@ -20,6 +22,7 @@ public class FindExpertFragment extends Fragment {
     private Button btnTherapist, btnPsychiatrist, btnStartNow, btnFind;
     private Spinner spinnerCentre;
     private Button btnFilters;
+    private ImageButton btnBack;
 
     @Nullable
     @Override
@@ -33,6 +36,7 @@ public class FindExpertFragment extends Fragment {
         spinnerCentre = view.findViewById(R.id.spinner_select_centre);
         btnFilters = view.findViewById(R.id.btn_filters);
         btnFind = view.findViewById(R.id.btn_find);
+        btnBack = view.findViewById(R.id.btn_back);
         
         // Set up click listeners
         setupClickListeners();
@@ -44,6 +48,15 @@ public class FindExpertFragment extends Fragment {
     }
     
     private void setupClickListeners() {
+        // Back button
+        btnBack.setOnClickListener(v -> {
+            // Navigate back to LandingFragment through MainActivity
+            if (getActivity() != null) {
+                ((MainActivity) getActivity()).loadFragment(new LandingFragment());
+                ((MainActivity) getActivity()).bottomNavigation.show(MainActivity.ID_HOME, true);
+            }
+        });
+
         // Toggle between Therapist and Psychiatrist
         btnTherapist.setOnClickListener(v -> {
             setActiveExpertType(true);

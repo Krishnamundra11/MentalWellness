@@ -159,11 +159,16 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
-            android:text="Next available: Today, 3:00 PM"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:maxLines="2"
+            android:ellipsize="end"
+            android:text="Next available:\nToday, 3:00 PM"
             android:textColor="#9D7E67"
             android:textSize="13sp"
-            app:layout_constraintBottom_toBottomOf="@+id/img_calendar"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@+id/img_calendar"
+            app:layout_constraintEnd_toStartOf="@+id/btn_view_profile"
             app:layout_constraintTop_toTopOf="@+id/img_calendar" />
 
         <Button
@@ -171,15 +176,15 @@
             android:layout_width="101dp"
             android:layout_height="38dp"
             android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
             android:background="@drawable/bg_button_active"
             android:paddingHorizontal="16dp"
             android:text="View"
             android:textAllCaps="false"
-            android:textColor="#9D7E67"
+            android:textColor="#FFFFFF"
             android:textSize="14sp"
-            app:layout_constraintBottom_toBottomOf="@+id/tv_next_available"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="@+id/tv_next_available" />
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

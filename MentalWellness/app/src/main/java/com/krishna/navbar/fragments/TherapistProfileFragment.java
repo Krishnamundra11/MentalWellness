@@ -186,7 +186,7 @@ public class TherapistProfileFragment extends Fragment {
         if (therapist.getProfileImageUrl() != null && !therapist.getProfileImageUrl().isEmpty()) {
             Glide.with(this).load(therapist.getProfileImageUrl()).into(imgProfile);
         } else {
-            imgProfile.setImageResource(R.drawable.placeholder_therapist);
+            imgProfile.setImageResource(R.drawable.placeholder_person);
         }
         tvName.setText(therapist.getName());
         tvSpecialization.setText(therapist.getSpecialization() != null ? therapist.getSpecialization().toString() : "");
