@@ -1,5 +1,6 @@
 package com.krishna.navbar.fragments;
 
+import android.app.AlertDialog;
 import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.drawable.ColorDrawable;
@@ -36,13 +37,12 @@ import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
+import com.krishna.navbar.LoginActivity;
 import com.krishna.navbar.R;
 import com.krishna.navbar.StatisticsActivity;
+
 import com.krishna.navbar.models.UserProfile;
 import com.krishna.navbar.utils.FirestoreHelper;
-import com.krishna.navbar.fragments.FindExpertFragment;
-import com.krishna.navbar.fragments.MusicMainFragment;
-import com.krishna.navbar.fragments.ScoreRecommendationFragment;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -145,8 +145,13 @@ public class ProfileFragment extends Fragment {
 
         ImageButton editProfileButton = view.findViewById(R.id.editProfileButton);
         editProfileButton.setOnClickListener(v -> showEditDialog());
+        
+        // Initialize logout button
+        MaterialButton logoutButton = view.findViewById(R.id.logoutButton);
+        logoutButton.setOnClickListener(v -> showLogoutConfirmationDialog());
     }
 
+    
     private void loadUserData() {
         if (currentUser == null) return;
 
@@ -269,31 +274,34 @@ public class ProfileFragment extends Fragment {
         }
     }
 
-    private void setupClickListeners() {
-        therapyCard.setOnClickListener(v -> {
-            // Navigate to Therapy booking screen using FindExpertFragment
-            if (getActivity() != null) {
-                getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.con, new FindExpertFragment())
-                    .addToBackStack(null)
-                    .commit();
-            }
-        });
+    
+private void setupClickListeners() {
+    therapyCard.setOnClickListener(v -> {
+        // Navigate to Therapy booking screen using FindExpertFragment
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.con, new FindExpertFragment())
+                .addToBackStack(null)
+                .commit();
+        }
+    });
 
-        analysisCard.setOnClickListener(v -> {
-            // Navigate to Statistics screen - keep using activity for now since we don't have a Stats fragment
-            startActivity(new Intent(getActivity(), StatisticsActivity.class));
-        });
+    analysisCard.setOnClickListener(v -> {
+        // Navigate to Statistics screen - keep using activity for now since we don't have a Stats fragment
+        startActivity(new Intent(getActivity(), StatisticsActivity.class));
+    });
 
-        musicCard.setOnClickListener(v -> {
-            // Navigate to Music Content screen using MusicMainFragment
-            if (getActivity() != null) {
-                getActivity().getSupportFragmentManager().beginTransaction()
-                    .replace(R.id.con, new MusicMainFragment())
-                    .addToBackStack(null)
-                    .commit();
-            }
-        });
+    musicCard.setOnClickListener(v -> {
+        // Navigate to Music Content screen using MusicMainFragment
+        if (getActivity() != null) {
+            getActivity().getSupportFragmentManager().beginTransaction()
+                .replace(R.id.con, new MusicMainFragment())
+                .addToBackStack(null)
+                .commit();
+        }
+    });
+    
+    
         
         // Add click listeners for score cards
         academicScoreCard.setOnClickListener(v -> {
@@ -587,5 +595,28 @@ public class ProfileFragment extends Fragment {
                     
                     Toast.makeText(getContext(), "Error updating profile: " + e.getMessage(), Toast.LENGTH_SHORT).show();
                 });
+    }
+
+    private void showLogoutConfirmationDialog() {
+        new AlertDialog.Builder(requireContext())
+            .setTitle("Logout")
+            .setMessage("Are you sure you want to logout?")
+            .setPositiveButton("Yes", (dialog, which) -> performLogout())
+            .setNegativeButton("No", null)
+            .show();
+    }
+    
+    private void performLogout() {
+        if (mAuth != null) {
+            mAuth.signOut();
+            // Clear any stored user data
+            if (getActivity() != null) {
+                // Navigate to login activity
+                Intent intent = new Intent(getActivity(), LoginActivity.class);
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
+                getActivity().finish();
+            }
+        }
     }
 } 
