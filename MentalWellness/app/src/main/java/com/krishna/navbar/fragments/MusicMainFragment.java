@@ -28,8 +28,10 @@ import com.google.firebase.firestore.QuerySnapshot;
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.UserPlaylist;
 import com.krishna.navbar.utils.FirebasePlaylistManager;
+import com.krishna.navbar.utils.UserUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,6 +83,15 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
         return playlistNameMap.getOrDefault(playlistName, playlistName);
     }
     
+    private TextView tvGreeting;
+    private UserUtils userUtils;
+    
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        userUtils = UserUtils.getInstance();
+    }
+    
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -90,6 +101,8 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
         firebaseAuth = FirebaseAuth.getInstance();
         playlistManager = FirebasePlaylistManager.getInstance();
         
+        // Initialize views
+        tvGreeting = view.findViewById(R.id.tvGreeting);
         setupUI(view);
         setupBackButtonHandling();
         
@@ -98,6 +111,9 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
         
         // Set up Firebase playlist listener for real-time updates
         setupFirebasePlaylistListener();
+        
+        // Update greeting with user's name
+        updateGreeting();
         
         return view;
     }
@@ -627,5 +643,35 @@ public class MusicMainFragment extends Fragment implements CreatePlaylistDialogF
             }
         }
         return null;
+    }
+    
+    private void updateGreeting() {
+        userUtils.getUserName(requireContext(), new UserUtils.OnNameFetched() {
+            @Override
+            public void onNameFetched(String name) {
+                String timeOfDay = getTimeOfDay();
+                tvGreeting.setText(String.format("%s, %s!", timeOfDay, name));
+            }
+            
+            @Override
+            public void onError(String error) {
+                // Fallback to generic greeting
+                String timeOfDay = getTimeOfDay();
+                tvGreeting.setText(String.format("%s!", timeOfDay));
+            }
+        });
+    }
+    
+    private String getTimeOfDay() {
+        Calendar calendar = Calendar.getInstance();
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        
+        if (hourOfDay < 12) {
+            return "Good morning";
+        } else if (hourOfDay < 17) {
+            return "Good afternoon";
+        } else {
+            return "Good evening";
+        }
     }
 } 

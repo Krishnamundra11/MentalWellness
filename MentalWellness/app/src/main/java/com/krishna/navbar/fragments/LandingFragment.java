@@ -23,8 +23,10 @@ import com.google.android.material.tabs.TabLayoutMediator;
 import com.krishna.navbar.R;
 import com.krishna.navbar.adapters.CarouselAdapter;
 import com.krishna.navbar.models.CarouselItem;
+import com.krishna.navbar.utils.UserUtils;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 
 /**
@@ -63,9 +65,16 @@ public class LandingFragment extends Fragment {
     // Data
     private List<CarouselItem> carouselItems;
     private CarouselAdapter carouselAdapter;
+    private UserUtils userUtils;
     
     public LandingFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        userUtils = UserUtils.getInstance();
     }
 
     @Nullable
@@ -85,6 +94,9 @@ public class LandingFragment extends Fragment {
         
         // Set up fragment result listener for questionnaire results
         setupFragmentResultListener();
+        
+        // Update greeting with user's name
+        updateGreeting();
         
         return view;
     }
@@ -422,5 +434,35 @@ public class LandingFragment extends Fragment {
         
         // Show the score container
         scoreCardsContainer.setVisibility(View.VISIBLE);
+    }
+
+    private void updateGreeting() {
+        userUtils.getUserName(requireContext(), new UserUtils.OnNameFetched() {
+            @Override
+            public void onNameFetched(String name) {
+                String timeOfDay = getTimeOfDay();
+                tvGreeting.setText(String.format("%s, %s!", timeOfDay, name));
+            }
+            
+            @Override
+            public void onError(String error) {
+                // Fallback to generic greeting
+                String timeOfDay = getTimeOfDay();
+                tvGreeting.setText(String.format("%s!", timeOfDay));
+            }
+        });
+    }
+    
+    private String getTimeOfDay() {
+        Calendar calendar = Calendar.getInstance();
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        
+        if (hourOfDay < 12) {
+            return "Good morning";
+        } else if (hourOfDay < 17) {
+            return "Good afternoon";
+        } else {
+            return "Good evening";
+        }
     }
 } 

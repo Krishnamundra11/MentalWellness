@@ -20,6 +20,9 @@ import com.krishna.navbar.activities.SleepAidActivity;
 import com.krishna.navbar.activities.StressReliefActivity;
 import com.krishna.navbar.ui.meditation.MeditationSession;
 import com.krishna.navbar.ui.meditation.MeditationSessionDetailFragment;
+import com.krishna.navbar.utils.UserUtils;
+
+import java.util.Calendar;
 
 /**
  * HomeFragment - Landing page for the Mental Wellness app
@@ -36,9 +39,18 @@ public class HomeFragment extends Fragment {
     private CardView cardNature;
     private ImageView btnNotification;
     private ImageView btnProfile;
+    private TextView tvGreeting;
+    private TextView tvSubGreeting;
+    private UserUtils userUtils;
     
     public HomeFragment() {
         // Required empty public constructor
+    }
+
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        userUtils = UserUtils.getInstance();
     }
 
     @Nullable
@@ -52,6 +64,9 @@ public class HomeFragment extends Fragment {
         
         // Set up click listeners for session cards and buttons
         setupClickListeners();
+        
+        // Update greeting with user's name
+        updateGreeting();
         
         return view;
     }
@@ -71,6 +86,10 @@ public class HomeFragment extends Fragment {
         // Buttons
         btnNotification = view.findViewById(R.id.btn_notification);
         btnProfile = view.findViewById(R.id.btn_profile);
+        
+        // TextViews
+        tvGreeting = view.findViewById(R.id.tv_greeting);
+        tvSubGreeting = view.findViewById(R.id.tv_sub_greeting);
     }
     
     /**
@@ -134,5 +153,35 @@ public class HomeFragment extends Fragment {
             .replace(R.id.con, fragment)
             .addToBackStack(null)
             .commit();
+    }
+
+    private void updateGreeting() {
+        userUtils.getUserName(requireContext(), new UserUtils.OnNameFetched() {
+            @Override
+            public void onNameFetched(String name) {
+                String timeOfDay = getTimeOfDay();
+                tvGreeting.setText(String.format("%s, %s", timeOfDay, name));
+            }
+            
+            @Override
+            public void onError(String error) {
+                // Fallback to generic greeting
+                String timeOfDay = getTimeOfDay();
+                tvGreeting.setText(String.format("%s!", timeOfDay));
+            }
+        });
+    }
+    
+    private String getTimeOfDay() {
+        Calendar calendar = Calendar.getInstance();
+        int hourOfDay = calendar.get(Calendar.HOUR_OF_DAY);
+        
+        if (hourOfDay < 12) {
+            return "Good morning";
+        } else if (hourOfDay < 17) {
+            return "Good afternoon";
+        } else {
+            return "Good evening";
+        }
     }
 } 

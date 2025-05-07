@@ -27,6 +27,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import com.google.firebase.storage.FirebaseStorage;
 import com.google.firebase.storage.StorageReference;
 import com.krishna.navbar.models.UserProfile;
+import com.krishna.navbar.utils.UserUtils;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -59,6 +60,8 @@ public class UserInfoActivity extends AppCompatActivity {
     private static final String STATE_PROFILE_COMPLETION = "profile_completion";
     private static final String STATE_COMPLETED = "completed";
 
+    private UserUtils userUtils;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -70,8 +73,9 @@ public class UserInfoActivity extends AppCompatActivity {
         // Set auth state to profile completion
         prefs.edit().putString(KEY_AUTH_STATE, STATE_PROFILE_COMPLETION).apply();
         
-        // Initialize Firebase
+        // Initialize Firebase and UserUtils
         initializeFirebase();
+        userUtils = UserUtils.getInstance();
 
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser == null) {
@@ -87,23 +91,36 @@ public class UserInfoActivity extends AppCompatActivity {
         // Initialize views
         initializeViews();
         
-        // Set welcome message
-        String email = currentUser.getEmail();
-        if (email != null) {
-            String[] parts = email.split("@");
-            // Extract username from email
-            String username = parts.length > 0 ? parts[0] : "";
-            // Capitalize first letter
-            if (!username.isEmpty()) {
-                username = username.substring(0, 1).toUpperCase() + username.substring(1);
+        // Set welcome message using UserUtils
+        userUtils.getUserName(this, new UserUtils.OnNameFetched() {
+            @Override
+            public void onNameFetched(String name) {
+                welcomeText.setText("Welcome, " + name + "!");
             }
-            welcomeText.setText("Welcome, " + username + "!");
             
-            // Pre-fill email
-            emailEdit.setText(email);
-            // Disable email editing since it comes from authentication
-            emailEdit.setEnabled(false);
-        }
+            @Override
+            public void onError(String error) {
+                // Fallback to email username
+                String email = currentUser.getEmail();
+                if (email != null) {
+                    String[] parts = email.split("@");
+                    String username = parts.length > 0 ? parts[0] : "";
+                    if (!username.isEmpty()) {
+                        username = username.substring(0, 1).toUpperCase() + username.substring(1);
+                        welcomeText.setText("Welcome, " + username + "!");
+                    } else {
+                        welcomeText.setText("Welcome!");
+                    }
+                } else {
+                    welcomeText.setText("Welcome!");
+                }
+            }
+        });
+        
+        // Pre-fill email
+        emailEdit.setText(currentUser.getEmail());
+        // Disable email editing since it comes from authentication
+        emailEdit.setEnabled(false);
 
         // Setup gender dropdown
         setupGenderDropdown();
