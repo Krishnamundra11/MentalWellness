@@ -7,6 +7,7 @@ import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -30,6 +31,7 @@ public class TherapistProfileFragment extends Fragment {
     private TextView tvExperience, tvRatingStat, tvReviewsCount;
     private TextView tvAboutMe, tvReadMore;
     private TextView tvConsultationFee, tvSessionDuration;
+    private ProgressBar progressLoading;
     
     // Data
     private Therapist therapist;
@@ -87,9 +89,28 @@ public class TherapistProfileFragment extends Fragment {
             Toast.makeText(getContext(), "Therapist not found", Toast.LENGTH_SHORT).show();
             return;
         }
+        
+        // Show loading indicator
+        if (progressLoading != null) {
+            progressLoading.setVisibility(View.VISIBLE);
+        }
+        
         FirestoreHelper helper = new FirestoreHelper();
+        
+        // Set a timeout for the operation - 10 seconds
+        com.google.firebase.firestore.FirebaseFirestoreSettings settings = 
+            new com.google.firebase.firestore.FirebaseFirestoreSettings.Builder()
+                .setPersistenceEnabled(true)  // Enable offline persistence
+                .build();
+        com.google.firebase.firestore.FirebaseFirestore.getInstance().setFirestoreSettings(settings);
+        
         helper.getTherapistById(therapistId)
             .addOnSuccessListener(documentSnapshot -> {
+                // Hide loading indicator
+                if (progressLoading != null) {
+                    progressLoading.setVisibility(View.GONE);
+                }
+                
                 therapist = documentSnapshot.toObject(Therapist.class);
                 if (therapist != null) {
                     therapist.setId(documentSnapshot.getId());
@@ -98,7 +119,21 @@ public class TherapistProfileFragment extends Fragment {
                     Toast.makeText(getContext(), "Therapist not found", Toast.LENGTH_SHORT).show();
                 }
             })
-            .addOnFailureListener(e -> Toast.makeText(getContext(), "Failed to load therapist", Toast.LENGTH_SHORT).show());
+            .addOnFailureListener(e -> {
+                // Hide loading indicator
+                if (progressLoading != null) {
+                    progressLoading.setVisibility(View.GONE);
+                }
+                
+                String errorMsg = "Failed to load therapist";
+                if (e.getMessage() != null) {
+                    if (e.getMessage().contains("DEADLINE_EXCEEDED") || 
+                        e.getMessage().contains("timed out")) {
+                        errorMsg = "Connection timed out. Please check your internet connection and try again.";
+                    }
+                }
+                Toast.makeText(getContext(), errorMsg, Toast.LENGTH_SHORT).show();
+            });
     }
 
     private void initViews(View view) {
@@ -119,6 +154,13 @@ public class TherapistProfileFragment extends Fragment {
         tvConsultationFee = view.findViewById(R.id.tv_consultation_fee);
         tvSessionDuration = view.findViewById(R.id.tv_session_duration);
         btnBookAppointment = view.findViewById(R.id.btn_book_appointment);
+        
+        // Initialize progress bar if it exists in layout
+        progressLoading = view.findViewById(R.id.progress_loading);
+        if (progressLoading == null) {
+            // If the progress bar doesn't exist in the layout, we'll manage without it
+            android.util.Log.w("TherapistProfile", "Progress loading view not found in layout");
+        }
     }
 
     private void setupListeners() {

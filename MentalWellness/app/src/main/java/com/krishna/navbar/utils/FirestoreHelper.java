@@ -191,7 +191,15 @@ public class FirestoreHelper {
 
     // Fetch therapist details by ID
     public Task<DocumentSnapshot> getTherapistById(String therapistId) {
-        return db.collection(THERAPISTS_COLLECTION).document(therapistId).get();
+        return db.collection(THERAPISTS_COLLECTION).document(therapistId).get()
+            .addOnFailureListener(e -> {
+                if (e instanceof com.google.firebase.firestore.FirebaseFirestoreException) {
+                    if (e.getMessage() != null && e.getMessage().contains("DEADLINE_EXCEEDED")) {
+                        // Log timeout errors specifically
+                        android.util.Log.e("FirestoreHelper", "Timeout while fetching therapist: " + e.getMessage());
+                    }
+                }
+            });
     }
 
     // Fetch available slots for a therapist (returns the whole doc, slots are in availableSlots)

@@ -246,6 +246,7 @@ public class ScoreRecommendationFragment extends Fragment {
      * Make API call to get prediction and recommendation
      */
     private void makeApiCall(PredictionRequest request) {
+        // Set a timeout of 15 seconds for the operation
         RetrofitClient.getApiService().getPrediction(request).enqueue(new Callback<PredictionResponse>() {
             @Override
             public void onResponse(Call<PredictionResponse> call, Response<PredictionResponse> response) {
@@ -255,16 +256,93 @@ public class ScoreRecommendationFragment extends Fragment {
                     PredictionResponse predictionResponse = response.body();
                     updateUIWithPrediction(predictionResponse);
                 } else {
-                    Toast.makeText(getContext(), "Error getting prediction", Toast.LENGTH_SHORT).show();
+                    handleApiError(null);
                 }
             }
 
             @Override
             public void onFailure(Call<PredictionResponse> call, Throwable t) {
                 progressLoading.setVisibility(View.GONE);
-                Toast.makeText(getContext(), "Network error: " + t.getMessage(), Toast.LENGTH_SHORT).show();
+                handleApiError(t);
             }
         });
+    }
+    
+    /**
+     * Handle API errors with appropriate messaging and fallback
+     */
+    private void handleApiError(Throwable t) {
+        String errorMessage;
+        
+        if (t != null) {
+            // Determine specific error message based on exception type
+            if (t instanceof java.net.SocketTimeoutException) {
+                errorMessage = "Connection timed out. Server might be starting up.";
+            } else if (t instanceof java.net.UnknownHostException) {
+                errorMessage = "Network error: Cannot reach server.";
+            } else if (t instanceof java.io.IOException) {
+                errorMessage = "Network error: " + t.getMessage();
+            } else {
+                errorMessage = "Error connecting to API: " + t.getMessage();
+            }
+            android.util.Log.e("ScoreRecommendation", "API error: " + t.getMessage(), t);
+        } else {
+            errorMessage = "Error getting prediction from server.";
+        }
+        
+        Toast.makeText(getContext(), errorMessage, Toast.LENGTH_SHORT).show();
+        
+        // Show tips anyway from local data
+        tvScoreLevel.setText(getDefaultLevelBasedOnScore());
+        tvScoreMessage.setText(getDefaultMessageBasedOnScore());
+        
+        // Enable retry button
+        btnRefreshResult.setEnabled(true);
+        btnRefreshResult.setVisibility(View.VISIBLE);
+    }
+    
+    /**
+     * Get default level classification based on score
+     */
+    private String getDefaultLevelBasedOnScore() {
+        if (score < 40) {
+            return type.equals("stress") ? "High Stress" : "Poor";
+        } else if (score < 75) {
+            return type.equals("stress") ? "Moderate Stress" : "Average";
+        } else {
+            return type.equals("stress") ? "Low Stress" : "Excellent";
+        }
+    }
+    
+    /**
+     * Get default message based on score
+     */
+    private String getDefaultMessageBasedOnScore() {
+        if (score < 40) {
+            if (type.equals("stress")) {
+                return "Your stress levels are high. Consider practicing relaxation techniques and consulting a professional.";
+            } else if (type.equals("academic")) {
+                return "Your academic performance needs improvement. Consider seeking academic support.";
+            } else {
+                return "Your sleep quality is poor. Try to establish a better sleep routine.";
+            }
+        } else if (score < 75) {
+            if (type.equals("stress")) {
+                return "You have moderate stress levels. Regular self-care may help reduce your stress.";
+            } else if (type.equals("academic")) {
+                return "Your academic performance is average. With some improvements, you can excel further.";
+            } else {
+                return "Your sleep quality is average. Small adjustments to your routine might help improve it.";
+            }
+        } else {
+            if (type.equals("stress")) {
+                return "You have healthy stress levels. Keep maintaining your good habits!";
+            } else if (type.equals("academic")) {
+                return "Your academic performance is excellent. Keep up the good work!";
+            } else {
+                return "Your sleep quality is excellent. Continue with your healthy sleep routine.";
+            }
+        }
     }
     
     /**

@@ -287,4 +287,36 @@
             app:tint="#5D4037" />
     </LinearLayout>
 
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Current Focus"
+            android:textSize="18sp"
+            android:textColor="#1976D2"
+            android:textStyle="bold" />
+
+        <TextView
+            android:id="@+id/track_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="Track Name"
+            android:textSize="16sp"
+            android:textColor="#333333" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="12dp"
+            android:text="Focus on the positive moments in your life. Remember that you are not alone, and this feeling will pass."
+            android:textSize="14sp"
+            android:textColor="#666666" />
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout> 
