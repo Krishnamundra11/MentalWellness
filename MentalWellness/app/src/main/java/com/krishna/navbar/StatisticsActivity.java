@@ -312,7 +312,16 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
     }
     
     private void loadData() {
+        // Show loading state
+        metricValue.setText("Loading...");
+        levelValue.setText("Loading...");
+        
+        // Clear existing data
         dataPoints.clear();
+        if (barChart.getData() != null) {
+            barChart.clear();
+        }
+        
         SimpleDateFormat dbDateFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
         SimpleDateFormat dayFormat = new SimpleDateFormat("EEEE", Locale.getDefault());
         
@@ -328,78 +337,93 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
         // Use FirestoreHelper instead of direct Firestore calls
         firestoreHelper.getResponsesByDateRange(currentCategory, startDateStr, endDateStr)
                 .addOnSuccessListener(queryDocumentSnapshots -> {
-                    // Log how many documents were found
-                    System.out.println("DEBUG: Retrieved " + queryDocumentSnapshots.size() + " documents");
-                    
-                    // Create a map of date to score for easy lookup
-                    Map<String, Integer> dateScoreMap = new HashMap<>();
-                    for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
-                        String date = document.getString("date");
-                        Long scoreObj = document.getLong("score");
+                    try {
+                        // Log how many documents were found
+                        System.out.println("DEBUG: Retrieved " + queryDocumentSnapshots.size() + " documents");
                         
-                        if (date != null && scoreObj != null) {
-                            // Only include dates within our desired range
-                            // This is needed if we're using the fallback query without the index
-                            if (date.compareTo(startDateStr) >= 0 && date.compareTo(endDateStr) <= 0) {
-                                dateScoreMap.put(date, scoreObj.intValue());
-                                System.out.println("DEBUG: Found score " + scoreObj + " for date " + date);
+                        // Create a map of date to score for easy lookup
+                        Map<String, Integer> dateScoreMap = new HashMap<>();
+                        for (DocumentSnapshot document : queryDocumentSnapshots.getDocuments()) {
+                            String date = document.getString("date");
+                            Long scoreObj = document.getLong("score");
+                            
+                            if (date != null && scoreObj != null) {
+                                // Only include dates within our desired range
+                                if (date.compareTo(startDateStr) >= 0 && date.compareTo(endDateStr) <= 0) {
+                                    dateScoreMap.put(date, scoreObj.intValue());
+                                    System.out.println("DEBUG: Found score " + scoreObj + " for date " + date);
+                                }
+                            } else {
+                                System.out.println("DEBUG: Document missing date or score: " + document.getId());
                             }
+                        }
+                        
+                        // Populate data points for each day in the range
+                        int totalScore = 0;
+                        int daysWithData = 0;
+                        
+                        while (!currentDate.after(endDate)) {
+                            String dateStr = dbDateFormat.format(currentDate.getTime());
+                            String dayOfWeek = dayFormat.format(currentDate.getTime());
+                            
+                            // Get score for this date if available, or 0 if not
+                            int score = dateScoreMap.getOrDefault(dateStr, 0);
+                            
+                            // Only count days with data for average calculation
+                            if (score > 0) {
+                                totalScore += score;
+                                daysWithData++;
+                            }
+                            
+                            dataPoints.add(new ScoreDataPoint(dateStr, score, dayOfWeek));
+                            
+                            // Move to next day
+                            currentDate.add(Calendar.DAY_OF_MONTH, 1);
+                        }
+                        
+                        System.out.println("DEBUG: Found " + daysWithData + " days with data, total score: " + totalScore);
+                        
+                        // Update metric value based on category
+                        if (daysWithData > 0) {
+                            int avgScore = totalScore / daysWithData;
+                            
+                            if (currentCategory.equals("sleep")) {
+                                // For sleep, we show total hours
+                                metricValue.setText(totalScore / 100 * 8 + " hours"); // Approximating 8 hours per 100%
+                            } else {
+                                // For academic and stress, we show average score
+                                metricValue.setText(String.valueOf(avgScore));
+                            }
+                            
+                            // Update level text
+                            updateLevelText(avgScore);
                         } else {
-                            System.out.println("DEBUG: Document missing date or score: " + document.getId());
-                        }
-                    }
-                    
-                    // Populate data points for each day in the range
-                    int totalScore = 0;
-                    int daysWithData = 0;
-                    
-                    while (!currentDate.after(endDate)) {
-                        String dateStr = dbDateFormat.format(currentDate.getTime());
-                        String dayOfWeek = dayFormat.format(currentDate.getTime());
-                        
-                        // Get score for this date if available, or 0 if not
-                        int score = dateScoreMap.getOrDefault(dateStr, 0);
-                        
-                        // Only count days with data for average calculation
-                        if (score > 0) {
-                            totalScore += score;
-                            daysWithData++;
+                            // No data available
+                            metricValue.setText("No data");
+                            levelValue.setText("No data available");
                         }
                         
-                        dataPoints.add(new ScoreDataPoint(dateStr, score, dayOfWeek));
+                        // Update chart
+                        updateChart();
                         
-                        // Move to next day
-                        currentDate.add(Calendar.DAY_OF_MONTH, 1);
+                    } catch (Exception e) {
+                        System.out.println("DEBUG: Error processing data: " + e.getMessage());
+                        e.printStackTrace();
+                        Toast.makeText(this, "Error processing data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                        
+                        // Reset UI to error state
+                        metricValue.setText("Error");
+                        levelValue.setText("Error loading data");
                     }
-                    
-                    System.out.println("DEBUG: Found " + daysWithData + " days with data, total score: " + totalScore);
-                    
-                    // Update metric value based on category
-                    if (daysWithData > 0) {
-                        int avgScore = totalScore / daysWithData;
-                        
-                        if (currentCategory.equals("sleep")) {
-                            // For sleep, we show total hours
-                            metricValue.setText(totalScore / 100 * 8 + " hours"); // Approximating 8 hours per 100%
-                        } else {
-                            // For academic and stress, we show average score
-                            metricValue.setText(String.valueOf(avgScore));
-                        }
-                        
-                        // Update level text
-                        updateLevelText(avgScore);
-                    } else {
-                        // No data available
-                        metricValue.setText("No data");
-                        levelValue.setText("No data available");
-                    }
-                    
-                    // Update chart
-                    updateChart();
                 })
                 .addOnFailureListener(e -> {
                     System.out.println("DEBUG: Error loading data: " + e.getMessage());
+                    e.printStackTrace();
                     Toast.makeText(this, "Error loading data: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    
+                    // Reset UI to error state
+                    metricValue.setText("Error");
+                    levelValue.setText("Error loading data");
                 });
     }
     
@@ -463,28 +487,42 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
         // Create bar entries for each day in chronological order
         for (int i = 0; i < dataPoints.size(); i++) {
             ScoreDataPoint dataPoint = dataPoints.get(i);
-            // Use position in date range instead of day of week to preserve chronological order
             entries.add(new BarEntry(i, dataPoint.getScore()));
             
-            // Format the date for X-axis label (e.g., "Mon 5/2")
+            // Format the date for X-axis label (e.g., "5/2")
             try {
                 SimpleDateFormat dbFormat = new SimpleDateFormat("yyyy-MM-dd", Locale.getDefault());
                 Date date = dbFormat.parse(dataPoint.getDate());
-                SimpleDateFormat displayFormat = new SimpleDateFormat("EEE M/d", Locale.getDefault());
+                SimpleDateFormat displayFormat = new SimpleDateFormat("M/d", Locale.getDefault());
                 xAxisLabels.add(displayFormat.format(date));
             } catch (ParseException e) {
-                xAxisLabels.add(dataPoint.getDayOfWeek().substring(0, 3)); // Fallback to day abbreviation
+                xAxisLabels.add(dataPoint.getDate()); // Fallback to raw date
             }
         }
         
         // Update X-axis with proper date labels
         XAxis xAxis = barChart.getXAxis();
         xAxis.setValueFormatter(new IndexAxisValueFormatter(xAxisLabels));
-        xAxis.setLabelRotationAngle(45); // Angle labels for better readability
-        xAxis.setLabelCount(Math.min(7, xAxisLabels.size()));
+        xAxis.setPosition(XAxis.XAxisPosition.BOTTOM);
+        xAxis.setGranularity(1f);
+        xAxis.setDrawGridLines(false);
+        xAxis.setLabelRotationAngle(45f);
         
+        // Show all dates in the selected period
+        xAxis.setLabelCount(xAxisLabels.size(), false);
+        
+        // Set up Y-axis
+        YAxis leftAxis = barChart.getAxisLeft();
+        leftAxis.setDrawGridLines(true);
+        leftAxis.setGranularity(1f);
+        leftAxis.setAxisMinimum(0f);
+        leftAxis.setAxisMaximum(100f);
+        
+        // Disable right Y-axis
+        barChart.getAxisRight().setEnabled(false);
+        
+        // Create and style the dataset
         BarDataSet dataSet;
-        
         if (barChart.getData() != null && barChart.getData().getDataSetCount() > 0) {
             dataSet = (BarDataSet) barChart.getData().getDataSetByIndex(0);
             dataSet.setValues(entries);
@@ -492,79 +530,50 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
             barChart.notifyDataSetChanged();
         } else {
             dataSet = new BarDataSet(entries, "Scores");
-            
-            // Use color gradient based on score values
             dataSet.setDrawValues(true);
+            dataSet.setValueTextSize(10f);
+            dataSet.setValueTextColor(Color.BLACK);
             
-            // Set bar colors based on category with gradient
+            // Set bar colors based on category
             int[] colors = new int[entries.size()];
             for (int i = 0; i < entries.size(); i++) {
                 int score = (int) entries.get(i).getY();
-                
                 switch (currentCategory) {
                     case "stress":
-                        if (score < 30) {
-                            colors[i] = Color.parseColor("#4CAF50"); // Green for low stress
-                        } else if (score < 70) {
-                            colors[i] = Color.parseColor("#FFA500"); // Orange for medium
-                        } else {
-                            colors[i] = Color.parseColor("#FF6B6B"); // Red for high stress
-                        }
+                        colors[i] = score > 70 ? Color.RED : score > 40 ? Color.YELLOW : Color.GREEN;
                         break;
                     case "sleep":
-                        if (score < 30) {
-                            colors[i] = Color.parseColor("#FF6B6B"); // Red for poor sleep
-                        } else if (score < 70) {
-                            colors[i] = Color.parseColor("#FFA500"); // Orange for medium
-                        } else {
-                            colors[i] = Color.parseColor("#4CAF50"); // Green for good sleep
-                        }
+                        colors[i] = score > 70 ? Color.GREEN : score > 40 ? Color.YELLOW : Color.RED;
                         break;
                     case "academic":
-                        if (score < 30) {
-                            colors[i] = Color.parseColor("#FF6B6B"); // Red for poor academics
-                        } else if (score < 70) {
-                            colors[i] = Color.parseColor("#FFA500"); // Orange for medium
-                        } else {
-                            colors[i] = Color.parseColor("#4CAF50"); // Green for good academics
-                        }
+                        colors[i] = score > 70 ? Color.GREEN : score > 40 ? Color.YELLOW : Color.RED;
                         break;
                 }
             }
-            
             dataSet.setColors(colors);
-            dataSet.setValueTextSize(12f);
             
-            // Customize data set to be more interactive
-            dataSet.setHighlightEnabled(true);
-            dataSet.setDrawValues(true);
-            
-            // Custom formatter to show % symbol
-            dataSet.setValueFormatter(new ValueFormatter() {
-                @Override
-                public String getFormattedValue(float value) {
-                    return value > 0 ? Math.round(value) + "%" : "";
-                }
-            });
-            
-            ArrayList<IBarDataSet> dataSets = new ArrayList<>();
-            dataSets.add(dataSet);
-            
-            BarData data = new BarData(dataSets);
-            data.setValueTextSize(10f);
+            BarData data = new BarData(dataSet);
             data.setBarWidth(0.7f);
-            
             barChart.setData(data);
         }
         
-        // Add animations
+        // Configure chart appearance
+        barChart.setDrawGridBackground(false);
+        barChart.setDrawBarShadow(false);
+        barChart.setDrawValueAboveBar(true);
+        barChart.setScaleEnabled(true);
+        barChart.setPinchZoom(false);
+        barChart.setDoubleTapToZoomEnabled(false);
+        
+        // Remove description
+        Description description = new Description();
+        description.setText("");
+        barChart.setDescription(description);
+        
+        // Add animation
         barChart.animateY(1000);
         
-        // Allow zooming but only on X-axis
-        barChart.setPinchZoom(true);
-        barChart.setScaleEnabled(true);
-        barChart.setDoubleTapToZoomEnabled(true);
-        
+        // Refresh chart
         barChart.invalidate();
     }
     
@@ -605,124 +614,83 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
         
         // Start date picker
         tvStartDate.setOnClickListener(v -> {
-            DatePickerDialog startDateDialog = new DatePickerDialog(
-                    this,
-                    (view, year, month, dayOfMonth) -> {
-                        startDate.set(year, month, dayOfMonth, 0, 0, 0);
-                        startDate.set(Calendar.MILLISECOND, 0);
-                        tvStartDate.setText(dateFormat.format(startDate.getTime()));
-                        
-                        // If end date is before start date, update end date
-                        if (endDate.before(startDate)) {
-                            endDate.setTimeInMillis(startDate.getTimeInMillis());
-                            endDate.set(Calendar.HOUR_OF_DAY, 23);
-                            endDate.set(Calendar.MINUTE, 59);
-                            endDate.set(Calendar.SECOND, 59);
-                            tvEndDate.setText(dateFormat.format(endDate.getTime()));
-                        }
-                    },
-                    startDate.get(Calendar.YEAR),
-                    startDate.get(Calendar.MONTH),
-                    startDate.get(Calendar.DAY_OF_MONTH)
+            DatePickerDialog startPicker = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    Calendar newStartDate = Calendar.getInstance();
+                    newStartDate.set(year, month, dayOfMonth, 0, 0, 0);
+                    
+                    // Validate that start date is not after end date
+                    if (newStartDate.after(endDate)) {
+                        Toast.makeText(this, "Start date cannot be after end date", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    // Validate that start date is not in the future
+                    if (newStartDate.after(now)) {
+                        Toast.makeText(this, "Start date cannot be in the future", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    startDate = newStartDate;
+                    tvStartDate.setText(dateFormat.format(startDate.getTime()));
+                },
+                startDate.get(Calendar.YEAR),
+                startDate.get(Calendar.MONTH),
+                startDate.get(Calendar.DAY_OF_MONTH)
             );
             
-            // Set max date to today
-            startDateDialog.getDatePicker().setMaxDate(now.getTimeInMillis());
-            
-            // Set min date to 6 months ago
-            Calendar minDate = Calendar.getInstance();
-            minDate.add(Calendar.MONTH, -6);
-            startDateDialog.getDatePicker().setMinDate(minDate.getTimeInMillis());
-            
-            startDateDialog.show();
+            // Set max date to end date or today, whichever is earlier
+            startPicker.getDatePicker().setMaxDate(Math.min(endDate.getTimeInMillis(), now.getTimeInMillis()));
+            startPicker.show();
         });
         
         // End date picker
         tvEndDate.setOnClickListener(v -> {
-            DatePickerDialog endDateDialog = new DatePickerDialog(
-                    this,
-                    (view, year, month, dayOfMonth) -> {
-                        endDate.set(year, month, dayOfMonth, 23, 59, 59);
-                        endDate.set(Calendar.MILLISECOND, 999);
-                        tvEndDate.setText(dateFormat.format(endDate.getTime()));
-                        
-                        // If start date is after end date, update start date
-                        if (startDate.after(endDate)) {
-                            startDate.setTimeInMillis(endDate.getTimeInMillis());
-                            startDate.set(Calendar.HOUR_OF_DAY, 0);
-                            startDate.set(Calendar.MINUTE, 0);
-                            startDate.set(Calendar.SECOND, 0);
-                            startDate.set(Calendar.MILLISECOND, 0);
-                            tvStartDate.setText(dateFormat.format(startDate.getTime()));
-                        }
-                    },
-                    endDate.get(Calendar.YEAR),
-                    endDate.get(Calendar.MONTH),
-                    endDate.get(Calendar.DAY_OF_MONTH)
+            DatePickerDialog endPicker = new DatePickerDialog(
+                this,
+                (view, year, month, dayOfMonth) -> {
+                    Calendar newEndDate = Calendar.getInstance();
+                    newEndDate.set(year, month, dayOfMonth, 23, 59, 59);
+                    
+                    // Validate that end date is not before start date
+                    if (newEndDate.before(startDate)) {
+                        Toast.makeText(this, "End date cannot be before start date", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    // Validate that end date is not in the future
+                    if (newEndDate.after(now)) {
+                        Toast.makeText(this, "End date cannot be in the future", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+                    
+                    endDate = newEndDate;
+                    tvEndDate.setText(dateFormat.format(endDate.getTime()));
+                },
+                endDate.get(Calendar.YEAR),
+                endDate.get(Calendar.MONTH),
+                endDate.get(Calendar.DAY_OF_MONTH)
             );
             
-            // Set max date to today
-            endDateDialog.getDatePicker().setMaxDate(now.getTimeInMillis());
-            
             // Set min date to start date
-            endDateDialog.getDatePicker().setMinDate(startDate.getTimeInMillis());
-            
-            endDateDialog.show();
+            endPicker.getDatePicker().setMinDate(startDate.getTimeInMillis());
+            // Set max date to today
+            endPicker.getDatePicker().setMaxDate(now.getTimeInMillis());
+            endPicker.show();
         });
         
         // Quick selection buttons
         btnLast7Days.setOnClickListener(v -> {
-            // Set end date to today
-            endDate = Calendar.getInstance();
-            endDate.set(Calendar.HOUR_OF_DAY, 23);
-            endDate.set(Calendar.MINUTE, 59);
-            endDate.set(Calendar.SECOND, 59);
-            
-            // Set start date to 7 days ago
-            startDate = Calendar.getInstance();
-            startDate.add(Calendar.DAY_OF_MONTH, -6);
-            startDate.set(Calendar.HOUR_OF_DAY, 0);
-            startDate.set(Calendar.MINUTE, 0);
-            startDate.set(Calendar.SECOND, 0);
-            
-            tvStartDate.setText(dateFormat.format(startDate.getTime()));
-            tvEndDate.setText(dateFormat.format(endDate.getTime()));
+            updateDateRange(7, tvStartDate, tvEndDate, dateFormat);
         });
         
         btnLast14Days.setOnClickListener(v -> {
-            // Set end date to today
-            endDate = Calendar.getInstance();
-            endDate.set(Calendar.HOUR_OF_DAY, 23);
-            endDate.set(Calendar.MINUTE, 59);
-            endDate.set(Calendar.SECOND, 59);
-            
-            // Set start date to 14 days ago
-            startDate = Calendar.getInstance();
-            startDate.add(Calendar.DAY_OF_MONTH, -13);
-            startDate.set(Calendar.HOUR_OF_DAY, 0);
-            startDate.set(Calendar.MINUTE, 0);
-            startDate.set(Calendar.SECOND, 0);
-            
-            tvStartDate.setText(dateFormat.format(startDate.getTime()));
-            tvEndDate.setText(dateFormat.format(endDate.getTime()));
+            updateDateRange(14, tvStartDate, tvEndDate, dateFormat);
         });
         
         btnLast30Days.setOnClickListener(v -> {
-            // Set end date to today
-            endDate = Calendar.getInstance();
-            endDate.set(Calendar.HOUR_OF_DAY, 23);
-            endDate.set(Calendar.MINUTE, 59);
-            endDate.set(Calendar.SECOND, 59);
-            
-            // Set start date to 30 days ago
-            startDate = Calendar.getInstance();
-            startDate.add(Calendar.DAY_OF_MONTH, -29);
-            startDate.set(Calendar.HOUR_OF_DAY, 0);
-            startDate.set(Calendar.MINUTE, 0);
-            startDate.set(Calendar.SECOND, 0);
-            
-            tvStartDate.setText(dateFormat.format(startDate.getTime()));
-            tvEndDate.setText(dateFormat.format(endDate.getTime()));
+            updateDateRange(30, tvStartDate, tvEndDate, dateFormat);
         });
         
         btnThisMonth.setOnClickListener(v -> {
@@ -732,7 +700,7 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
             endDate.set(Calendar.MINUTE, 59);
             endDate.set(Calendar.SECOND, 59);
             
-            // Set start date to first day of month
+            // Set start date to first day of current month
             startDate = Calendar.getInstance();
             startDate.set(Calendar.DAY_OF_MONTH, 1);
             startDate.set(Calendar.HOUR_OF_DAY, 0);
@@ -747,11 +715,35 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
         
         // Override the positive button to prevent dialog from auto-dismissing
         dialog.getButton(AlertDialog.BUTTON_POSITIVE).setOnClickListener(v -> {
+            // Validate date range before applying
+            if (startDate.after(endDate)) {
+                Toast.makeText(this, "Invalid date range", Toast.LENGTH_SHORT).show();
+                return;
+            }
+            
             // Apply the date range selection and close dialog
             updateUI();
             loadData();
             dialog.dismiss();
         });
+    }
+    
+    private void updateDateRange(int days, TextView tvStartDate, TextView tvEndDate, SimpleDateFormat dateFormat) {
+        // Set end date to today
+        endDate = Calendar.getInstance();
+        endDate.set(Calendar.HOUR_OF_DAY, 23);
+        endDate.set(Calendar.MINUTE, 59);
+        endDate.set(Calendar.SECOND, 59);
+        
+        // Set start date to N days ago
+        startDate = Calendar.getInstance();
+        startDate.add(Calendar.DAY_OF_MONTH, -(days - 1));
+        startDate.set(Calendar.HOUR_OF_DAY, 0);
+        startDate.set(Calendar.MINUTE, 0);
+        startDate.set(Calendar.SECOND, 0);
+        
+        tvStartDate.setText(dateFormat.format(startDate.getTime()));
+        tvEndDate.setText(dateFormat.format(endDate.getTime()));
     }
 
     @Override
@@ -793,31 +785,13 @@ public class StatisticsActivity extends AppCompatActivity implements OnChartValu
                 int color;
                 switch (currentCategory) {
                     case "stress":
-                        if (score < 30) {
-                            color = Color.parseColor("#4CAF50"); // Green for low stress
-                        } else if (score < 70) {
-                            color = Color.parseColor("#FFA500"); // Orange for medium
-                        } else {
-                            color = Color.parseColor("#FF6B6B"); // Red for high stress
-                        }
+                        color = score > 70 ? Color.RED : score > 40 ? Color.YELLOW : Color.GREEN;
                         break;
                     case "sleep":
-                        if (score < 30) {
-                            color = Color.parseColor("#FF6B6B"); // Red for poor sleep
-                        } else if (score < 70) {
-                            color = Color.parseColor("#FFA500"); // Orange for medium
-                        } else {
-                            color = Color.parseColor("#4CAF50"); // Green for good sleep
-                        }
+                        color = score > 70 ? Color.GREEN : score > 40 ? Color.YELLOW : Color.RED;
                         break;
                     case "academic":
-                        if (score < 30) {
-                            color = Color.parseColor("#FF6B6B"); // Red for poor academics
-                        } else if (score < 70) {
-                            color = Color.parseColor("#FFA500"); // Orange for medium
-                        } else {
-                            color = Color.parseColor("#4CAF50"); // Green for good academics
-                        }
+                        color = score > 70 ? Color.GREEN : score > 40 ? Color.YELLOW : Color.RED;
                         break;
                     default:
                         color = Color.GRAY;

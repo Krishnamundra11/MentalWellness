@@ -18,6 +18,7 @@ import com.bumptech.glide.Glide;
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.Therapist;
 import com.krishna.navbar.utils.FirestoreHelper;
+import com.krishna.navbar.utils.NavigationHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -206,28 +207,17 @@ public class BookingConfirmationFragment extends Fragment {
     private void setupListeners() {
         btnBack.setOnClickListener(v -> {
             // Go back to the FindExpertFragment (home of therapy section)
-            getParentFragmentManager().popBackStack(null, 1);
-            
-            // Navigate to FindExpertFragment
-            getParentFragmentManager().beginTransaction()
-                .replace(R.id.con, new FindExpertFragment())
-                .commit();
+            NavigationHelper.navigateBackToMainFlow(this);
         });
         
         btnViewAppointments.setOnClickListener(v -> {
             // Navigate to MyAppointmentsFragment
-            getParentFragmentManager().beginTransaction()
-                .replace(R.id.con, new
-                        MyAppointmentsFragment())
-                .addToBackStack(null)
-                .commit();
+            NavigationHelper.navigateToFragment(this, new MyAppointmentsFragment(), true);
         });
         
         btnBackHome.setOnClickListener(v -> {
             // Navigate back to home screen
-            // Pop back to the root fragment
-            getParentFragmentManager().popBackStack(null, 
-                    androidx.fragment.app.FragmentManager.POP_BACK_STACK_INCLUSIVE);
+            NavigationHelper.navigateToHome(this);
         });
     }
 } 

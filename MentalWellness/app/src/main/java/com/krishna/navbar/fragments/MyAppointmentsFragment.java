@@ -21,6 +21,7 @@ import com.krishna.navbar.R;
 import com.krishna.navbar.adapters.AppointmentAdapter;
 import com.krishna.navbar.models.TherapistBooking;
 import com.krishna.navbar.utils.FirestoreHelper;
+import com.krishna.navbar.utils.NavigationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -84,7 +85,7 @@ public class MyAppointmentsFragment extends Fragment {
         
         // Set up back button
         btnBack.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
+            NavigationHelper.navigateBackToMainFlow(this);
         });
     }
     

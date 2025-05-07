@@ -152,5 +152,25 @@ public class MainActivity extends AppCompatActivity {
                 .replace(R.id.con, fragment)
                 .commit();
     }
+
+    @Override
+    public void onBackPressed() {
+        // Check if there are any fragments in the back stack
+        if (getSupportFragmentManager().getBackStackEntryCount() > 0) {
+            getSupportFragmentManager().popBackStack();
+        } else {
+            // If no fragments in back stack, handle normally
+            super.onBackPressed();
+        }
+    }
+
+    /**
+     * Ensure bottom navigation is visible
+     */
+    public void showBottomNavigation() {
+        if (bottomNavigation != null) {
+            bottomNavigation.setVisibility(android.view.View.VISIBLE);
+        }
+    }
 }
 

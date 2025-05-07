@@ -20,6 +20,7 @@ import com.krishna.navbar.R;
 import com.krishna.navbar.adapters.TherapistAdapter;
 import com.krishna.navbar.models.Therapist;
 import com.krishna.navbar.utils.FirestoreHelper;
+import com.krishna.navbar.utils.NavigationHelper;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 import java.util.ArrayList;
@@ -65,7 +66,7 @@ public class TherapistListFragment extends Fragment implements TherapistAdapter.
     
     private void setupListeners() {
         btnBack.setOnClickListener(v -> {
-            getParentFragmentManager().popBackStack();
+            NavigationHelper.handleBackNavigation(this);
         });
         
         btnFilter.setOnClickListener(v -> {
@@ -162,11 +163,7 @@ public class TherapistListFragment extends Fragment implements TherapistAdapter.
     public void onProfileClick(Therapist therapist, int position) {
         // Navigate to TherapistProfileFragment with the selected therapist ID
         TherapistProfileFragment profileFragment = TherapistProfileFragment.newInstance(therapist.getId());
-        
-        getParentFragmentManager().beginTransaction()
-                .replace(R.id.con, profileFragment)
-                .addToBackStack(null)
-                .commit();
+        NavigationHelper.navigateToFragment(this, profileFragment, true);
     }
 
     @Override

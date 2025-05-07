@@ -19,6 +19,7 @@ import com.bumptech.glide.Glide;
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.Therapist;
 import com.krishna.navbar.utils.FirestoreHelper;
+import com.krishna.navbar.utils.NavigationHelper;
 import com.google.firebase.firestore.DocumentSnapshot;
 
 public class TherapistProfileFragment extends Fragment {
@@ -164,7 +165,7 @@ public class TherapistProfileFragment extends Fragment {
     }
 
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> NavigationHelper.handleBackNavigation(this));
         btnFavorite.setOnClickListener(v -> toggleFavorite());
         btnOnline.setOnClickListener(v -> setConsultationMode(true));
         btnInPerson.setOnClickListener(v -> setConsultationMode(false));
@@ -172,10 +173,7 @@ public class TherapistProfileFragment extends Fragment {
         btnBookAppointment.setOnClickListener(v -> {
             if (therapist != null) {
                 BookAppointmentFragment bookingFragment = BookAppointmentFragment.newInstance(therapist.getId());
-                getParentFragmentManager().beginTransaction()
-                    .replace(R.id.con, bookingFragment)
-                    .addToBackStack(null)
-                    .commit();
+                NavigationHelper.navigateToFragment(this, bookingFragment, true);
             }
         });
     }

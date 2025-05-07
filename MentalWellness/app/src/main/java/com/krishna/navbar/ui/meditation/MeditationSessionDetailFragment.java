@@ -55,7 +55,7 @@ public class MeditationSessionDetailFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        
+
         // Initialize views
         ivMeditationImage = view.findViewById(R.id.iv_meditation_image);
         tvMeditationTitle = view.findViewById(R.id.tv_meditation_title);
@@ -65,7 +65,7 @@ public class MeditationSessionDetailFragment extends Fragment {
 
         // Load session data
         loadSessionData();
-        
+
         // Set click listeners
         setupClickListeners();
     }
@@ -83,8 +83,8 @@ public class MeditationSessionDetailFragment extends Fragment {
                         Toast.makeText(getContext(), "Session not found", Toast.LENGTH_SHORT).show();
                     }
                 })
-                .addOnFailureListener(e -> 
-                    Toast.makeText(getContext(), "Error loading session: " + e.getMessage(), 
+                .addOnFailureListener(e ->
+                    Toast.makeText(getContext(), "Error loading session: " + e.getMessage(),
                         Toast.LENGTH_SHORT).show());
     }
 
@@ -132,7 +132,7 @@ public class MeditationSessionDetailFragment extends Fragment {
             isPlaying = true;
             updatePlayPauseButton();
         } catch (Exception e) {
-            Toast.makeText(getContext(), "Error playing audio: " + e.getMessage(), 
+            Toast.makeText(getContext(), "Error playing audio: " + e.getMessage(),
                 Toast.LENGTH_SHORT).show();
         }
     }
@@ -157,4 +157,4 @@ public class MeditationSessionDetailFragment extends Fragment {
             mediaPlayer = null;
         }
     }
-} 
+}

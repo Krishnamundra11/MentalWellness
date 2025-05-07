@@ -1,5 +1,6 @@
 package com.krishna.navbar.fragments;
 
+import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.LayoutInflater;
@@ -9,6 +10,7 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -16,6 +18,7 @@ import androidx.fragment.app.Fragment;
 
 import com.krishna.navbar.R;
 import com.krishna.navbar.models.Track;
+import com.krishna.navbar.utils.NavigationHelper;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -37,10 +40,41 @@ public class PlayerFragment extends Fragment {
     private ImageButton btnPrevious;
     private ImageButton btnNext;
     private ImageButton btnHeart;
+    private ImageButton btnBack;
     
-    private boolean isPlaying = true;
+    private boolean isPlaying = false;
     private Handler handler = new Handler();
+    private MediaPlayer mediaPlayer;
     
+    // Playlist of songs in res/raw
+    private final int[] playlist = {
+        R.raw.meditation_example,
+        // Add more songs here as they are added to res/raw
+    };
+    
+    // Add the progress update runnable
+    private final Runnable progressUpdateRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (mediaPlayer != null && isPlaying) {
+                int currentPosition = mediaPlayer.getCurrentPosition();
+                int totalDuration = mediaPlayer.getDuration();
+                
+                // Update seekbar
+                if (totalDuration > 0) {
+                    int progress = (currentPosition * 100) / totalDuration;
+                    seekBar.setProgress(progress);
+                }
+                
+                // Update current time text
+                updateTimeDisplay(currentPosition, tvCurrentTime);
+                
+                // Schedule next update
+                handler.postDelayed(this, 1000);
+            }
+        }
+    };
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -54,8 +88,18 @@ public class PlayerFragment extends Fragment {
             trackIndex = getArguments().getInt("trackIndex", 0);
         }
         
+        // Hide bottom navigation when this fragment is shown
+        if (getActivity() != null) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.GONE);
+            }
+        }
+        
         setupUI(view);
-        startPlayback();
+        setupMediaPlayer();
+        setupListeners();
+        
         return view;
     }
 
@@ -71,6 +115,7 @@ public class PlayerFragment extends Fragment {
         btnPrevious = view.findViewById(R.id.btnPrevious);
         btnNext = view.findViewById(R.id.btnNext);
         btnHeart = view.findViewById(R.id.btnHeart);
+        btnBack = view.findViewById(R.id.btnBack);
         
         // Get the album art
         ImageView ivAlbumArt = view.findViewById(R.id.ivAlbumArt);
@@ -157,7 +202,7 @@ public class PlayerFragment extends Fragment {
         btnPrevious.setOnClickListener(v -> playPreviousTrack());
         btnNext.setOnClickListener(v -> playNextTrack());
         btnHeart.setOnClickListener(v -> toggleFavorite());
-        view.findViewById(R.id.btnBack).setOnClickListener(v -> navigateBack());
+        btnBack.setOnClickListener(v -> navigateBack());
     }
 
     private Track getTrackFromPlaylist() {
@@ -219,91 +264,109 @@ public class PlayerFragment extends Fragment {
         return tracks;
     }
     
-    private void startPlayback() {
-        // In a real app, this would start actual audio playback
-        // For this demo, we'll just simulate progress
-        isPlaying = true;
-        updatePlayPauseButton();
-        startProgressUpdate();
+    private void setupMediaPlayer() {
+        try {
+            mediaPlayer = MediaPlayer.create(getContext(), playlist[trackIndex]);
+            mediaPlayer.setOnCompletionListener(mp -> {
+                isPlaying = false;
+                updatePlayPauseButton();
+                playNextTrack();
+            });
+            
+            // Set total duration
+            int totalDuration = mediaPlayer.getDuration();
+            updateTimeDisplay(totalDuration, tvTotalTime);
+            
+            // Start playing automatically
+            startPlayback();
+        } catch (Exception e) {
+            Toast.makeText(getContext(), "Error initializing audio player", Toast.LENGTH_SHORT).show();
+        }
     }
-    
+
+    private void setupListeners() {
+        btnBack.setOnClickListener(v -> {
+            NavigationHelper.handleBackNavigation(this);
+        });
+
+        btnPlayPause.setOnClickListener(v -> {
+            if (isPlaying) {
+                pausePlayback();
+            } else {
+                startPlayback();
+            }
+        });
+
+        btnNext.setOnClickListener(v -> {
+            playNextTrack();
+        });
+
+        seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser && mediaPlayer != null) {
+                    int totalDuration = mediaPlayer.getDuration();
+                    int newPosition = (progress * totalDuration) / 100;
+                    mediaPlayer.seekTo(newPosition);
+                    updateTimeDisplay(newPosition, tvCurrentTime);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                // Pause progress updates while seeking
+                handler.removeCallbacks(progressUpdateRunnable);
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                // Resume progress updates after seeking
+                if (isPlaying) {
+                    handler.post(progressUpdateRunnable);
+                }
+            }
+        });
+    }
+
     private void togglePlayback() {
-        isPlaying = !isPlaying;
-        updatePlayPauseButton();
-        
         if (isPlaying) {
-            // When resuming, start fresh
-            startProgressUpdate();
+            pausePlayback();
         } else {
-            // When pausing, make sure to cancel all pending updates
+            startPlayback();
+        }
+    }
+
+    private void startPlayback() {
+        if (mediaPlayer != null) {
+            mediaPlayer.start();
+            isPlaying = true;
+            updatePlayPauseButton();
+            startProgressUpdate();
+        }
+    }
+
+    private void pausePlayback() {
+        if (mediaPlayer != null) {
+            mediaPlayer.pause();
+            isPlaying = false;
+            updatePlayPauseButton();
             handler.removeCallbacks(progressUpdateRunnable);
         }
     }
 
-    private void updatePlayPauseButton() {
-        // Update play/pause button based on state
-        btnPlayPause.setImageResource(isPlaying ? 
-                android.R.drawable.ic_media_pause : 
-                android.R.drawable.ic_media_play);
-    }
-    
     private void startProgressUpdate() {
-        // Reset any existing callbacks
         handler.removeCallbacks(progressUpdateRunnable);
-        
-        // Start progress updates immediately
         progressUpdateRunnable.run();
     }
-    
-    private final Runnable progressUpdateRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (!isPlaying) {
-                return; // Exit if not playing
-            }
-            
-            // Update progress (in real app, this would be based on actual playback)
-            int currentProgress = seekBar.getProgress();
-            if (currentProgress < 100) {
-                // Update progress by 1 each second
-                seekBar.setProgress(currentProgress + 1);
-                
-                // Update current time text based on progress
-                updateTimeDisplay(currentProgress);
-                
-                // Schedule next update in exactly 1 second (1000ms)
-                handler.postDelayed(this, 1000);
-            } else {
-                // Track finished, play next
-                playNextTrack();
-            }
-        }
-    };
-    
-    private void updateTimeDisplay(int progress) {
-        // Calculate time based on progress and total duration
-        // For simplicity, let's assume the total duration is 3:30 (210 seconds)
-        Track track = getTrackFromPlaylist();
-        int totalSeconds = 210; // Default
-        
-        if (track != null && track.getDuration() != null) {
-            String[] timeParts = track.getDuration().split(":");
-            if (timeParts.length == 2) {
-                try {
-                    int minutes = Integer.parseInt(timeParts[0]);
-                    int seconds = Integer.parseInt(timeParts[1]);
-                    totalSeconds = minutes * 60 + seconds;
-                } catch (NumberFormatException e) {
-                    // Use default if parsing fails
-                }
-            }
-        }
-        
-        int currentSeconds = (progress * totalSeconds) / 100;
-        int minutes = currentSeconds / 60;
-        int seconds = currentSeconds % 60;
-        
-        tvCurrentTime.setText(String.format("%d:%02d", minutes, seconds));
+
+    private void updateTimeDisplay(int milliseconds, TextView textView) {
+        int seconds = (milliseconds / 1000) % 60;
+        int minutes = (milliseconds / (1000 * 60)) % 60;
+        textView.setText(String.format("%d:%02d", minutes, seconds));
+    }
+
+    private void updatePlayPauseButton() {
+        btnPlayPause.setImageResource(isPlaying ? R.drawable.ic_pause : R.drawable.ic_play);
     }
     
     private void playPreviousTrack() {
@@ -385,15 +448,31 @@ public class PlayerFragment extends Fragment {
         super.onPause();
         // Pause playback when fragment is paused
         if (isPlaying) {
-            togglePlayback();
+            pausePlayback();
         }
     }
     
     @Override
-    public void onDestroy() {
-        super.onDestroy();
-        // Clean up all handlers and timers
-        isPlaying = false;
+    public void onDestroyView() {
+        super.onDestroyView();
+        // Clean up MediaPlayer resources
+        if (mediaPlayer != null) {
+            if (mediaPlayer.isPlaying()) {
+                mediaPlayer.stop();
+            }
+            mediaPlayer.release();
+            mediaPlayer = null;
+        }
+        
+        // Remove any pending callbacks
         handler.removeCallbacks(progressUpdateRunnable);
+        
+        // Restore bottom navigation visibility
+        if (getActivity() != null && !isRemoving()) {
+            View bottomNavigation = getActivity().findViewById(R.id.bottomNavigation);
+            if (bottomNavigation != null) {
+                bottomNavigation.setVisibility(View.VISIBLE);
+            }
+        }
     }
 } 

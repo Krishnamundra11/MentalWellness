@@ -30,6 +30,7 @@ import com.krishna.navbar.models.TherapistBooking;
 import com.krishna.navbar.utils.FirestoreHelper;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.bumptech.glide.Glide;
+import com.krishna.navbar.utils.NavigationHelper;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -227,7 +228,7 @@ public class BookAppointmentFragment extends Fragment {
     }
 
     private void setupListeners() {
-        btnBack.setOnClickListener(v -> getParentFragmentManager().popBackStack());
+        btnBack.setOnClickListener(v -> NavigationHelper.handleBackNavigation(this));
         btnOnline.setOnClickListener(v -> updateSessionType(true));
         btnInPerson.setOnClickListener(v -> updateSessionType(false));
         btnConfirm.setOnClickListener(v -> {
@@ -242,30 +243,14 @@ public class BookAppointmentFragment extends Fragment {
                         aVoid -> {
                             BookingConfirmationFragment confirmationFragment = BookingConfirmationFragment.newInstance(
                                     therapist, selectedDate.getDate(), selectedTimeSlot.getTime(), isOnlineSelected);
-                            getParentFragmentManager().beginTransaction()
-                                    .setCustomAnimations(
-                                            R.anim.slide_in_right,
-                                            R.anim.fade_out,
-                                            R.anim.fade_in,
-                                            R.anim.slide_out_left
-                                    )
-                                    .replace(R.id.con, confirmationFragment)
-                                    .addToBackStack(null)
-                                    .commit();
+                            NavigationHelper.navigateToFragment(this, confirmationFragment, true);
                         },
-                        e -> Toast.makeText(getContext(), "Failed to book appointment", Toast.LENGTH_SHORT).show()
-                );
+                        e -> Toast.makeText(getContext(), "Failed to book appointment: " + e.getMessage(), Toast.LENGTH_SHORT).show());
             } else {
                 Toast.makeText(getContext(), "Please select a date and time", Toast.LENGTH_SHORT).show();
             }
         });
-        btnAddCalendar.setOnClickListener(v -> {
-            if (selectedDate != null && selectedTimeSlot != null && therapist != null) {
-                addEventToCalendar();
-            } else {
-                Toast.makeText(getContext(), "Please select a date and time first", Toast.LENGTH_SHORT).show();
-            }
-        });
+        btnAddCalendar.setOnClickListener(v -> addEventToCalendar());
     }
 
     private void addEventToCalendar() {
