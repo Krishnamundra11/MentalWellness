@@ -48,13 +48,16 @@
             android:theme="@style/Theme.MentalWellness.NoActionBar" />
         <activity
             android:name="com.krishna.navbar.activities.StressReliefActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
         <activity
             android:name="com.krishna.navbar.activities.DepressionHelpActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
         <activity
             android:name="com.krishna.navbar.activities.SleepAidActivity"
-            android:exported="false" />
+            android:exported="false"
+            android:theme="@style/Theme.MentalWellness.NoActionBar" />
         <activity
             android:name="com.krishna.navbar.ActivityTwo"
             android:exported="false" />
