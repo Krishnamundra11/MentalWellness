@@ -24,7 +24,7 @@ import com.krishna.navbar.activities.StressReliefActivity;
  */
 public class MeditationGuideFragment extends Fragment {
 
-    private ImageButton btnBack, btnMenu;
+    private ImageButton btnBack;
     private ImageButton btnPlayStress, btnPauseStress;
     private ImageButton btnPlayDepression, btnPauseDepression;
     private ImageButton btnPlaySleep, btnPauseSleep;
@@ -59,7 +59,6 @@ public class MeditationGuideFragment extends Fragment {
     private void initViews(View view) {
         // Top app bar buttons
         btnBack = view.findViewById(R.id.btn_back);
-        btnMenu = view.findViewById(R.id.btn_menu);
         
         // Stress relief controls
         btnPlayStress = view.findViewById(R.id.btn_play_stress);
@@ -86,9 +85,6 @@ public class MeditationGuideFragment extends Fragment {
                 getActivity().onBackPressed();
             }
         });
-        
-        btnMenu.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Options menu clicked", Toast.LENGTH_SHORT).show());
         
         // Session card clicks - launch appropriate activities
         cardStressRelief.setOnClickListener(v -> 

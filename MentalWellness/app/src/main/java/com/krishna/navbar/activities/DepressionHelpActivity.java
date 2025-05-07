@@ -24,10 +24,34 @@ public class DepressionHelpActivity extends AppCompatActivity {
     private static final long SESSION_DURATION_MS = TimeUnit.MINUTES.toMillis(20);
     private static final String CATEGORY_DEPRESSION_HELP = "depressionHelp";
     
+    // Meditation instructions
+    private static final String[] MEDITATION_INSTRUCTIONS = {
+        "Find a peaceful space where you feel safe",
+        "Sit comfortably and close your eyes",
+        "Take a few deep, calming breaths",
+        "Notice how your body feels in this moment",
+        "Acknowledge any difficult emotions without judgment",
+        "Remember that this feeling is temporary",
+        "Focus on the sensation of your breath",
+        "Feel the support beneath you",
+        "Notice any positive sensations in your body",
+        "Bring to mind a happy memory",
+        "Feel the warmth of that memory",
+        "Let that positive feeling grow",
+        "Know that you are not alone",
+        "Feel the strength within you",
+        "Gently bring your awareness back",
+        "Take a moment to appreciate yourself",
+        "Notice any small moments of peace",
+        "Feel the healing energy around you",
+        "Know that better days are ahead",
+        "Slowly return to the present moment"
+    };
+    
     // UI Components
     private TextView timerText;
-    private TextView trackTitle;
-    private ImageButton backButton, menuButton;
+    private TextView currentFocusDescription;
+    private ImageButton backButton;
     private FloatingActionButton pauseButton, previousButton, nextButton;
     
     // Timer variables
@@ -69,11 +93,10 @@ public class DepressionHelpActivity extends AppCompatActivity {
     private void initViews() {
         try {
             timerText = findViewById(R.id.timer_text);
-            trackTitle = findViewById(R.id.track_title);
+            currentFocusDescription = findViewById(R.id.currentFocusDescription);
             
             // Toolbar buttons
             backButton = findViewById(R.id.btn_back);
-            menuButton = findViewById(R.id.btn_menu);
             
             // Media control buttons
             pauseButton = findViewById(R.id.btn_pause);
@@ -95,13 +118,13 @@ public class DepressionHelpActivity extends AppCompatActivity {
             allValid = false;
         }
         
-        if (trackTitle == null) {
-            Toast.makeText(this, "Track title view is missing", Toast.LENGTH_SHORT).show();
+        if (currentFocusDescription == null) {
+            Toast.makeText(this, "Current focus description view is missing", Toast.LENGTH_SHORT).show();
             allValid = false;
         }
         
-        if (backButton == null || menuButton == null) {
-            Toast.makeText(this, "Navigation buttons are missing", Toast.LENGTH_SHORT).show();
+        if (backButton == null) {
+            Toast.makeText(this, "Back button is missing", Toast.LENGTH_SHORT).show();
             allValid = false;
         }
         
@@ -145,9 +168,6 @@ public class DepressionHelpActivity extends AppCompatActivity {
                 initializeMediaPlayer(trackList.get(0));
             }
         }
-        
-        // Update the track title
-        updateTrackTitle();
     }
     
     private void initializeMediaPlayer(String trackPath) {
@@ -213,20 +233,8 @@ public class DepressionHelpActivity extends AppCompatActivity {
                     }
                 }, 30000); // 30 seconds
             });
-            
-            // Display simulated track name
-            if (trackTitle != null) {
-                String displayName = "Simulated Music";
-                if (!trackList.isEmpty() && currentTrackIndex >= 0 && currentTrackIndex < trackList.size()) {
-                    String track = trackList.get(currentTrackIndex);
-                    displayName = track.replace(".mp3", "").replace("_", " ") + " (Simulated)";
-                }
-                trackTitle.setText(displayName);
-            }
-            
-            Toast.makeText(this, "Using simulated audio (no audio file found)", Toast.LENGTH_SHORT).show();
         } catch (Exception e) {
-            Toast.makeText(this, "Could not create simulation: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Error creating dummy player: " + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
     
@@ -235,10 +243,6 @@ public class DepressionHelpActivity extends AppCompatActivity {
             // Save position before exiting
             saveCurrentPlaybackState();
             finish();
-        });
-
-        menuButton.setOnClickListener(v -> {
-            Toast.makeText(this, "Menu options", Toast.LENGTH_SHORT).show();
         });
 
         pauseButton.setOnClickListener(v -> {
@@ -295,9 +299,22 @@ public class DepressionHelpActivity extends AppCompatActivity {
         // Initialize and play the next track
         initializeMediaPlayer(nextTrack);
         playMusic();
-        updateTrackTitle();
         
-        Toast.makeText(this, "Playing next track", Toast.LENGTH_SHORT).show();
+        // Reduce timer by 15 seconds
+        if (timeLeftInMillis > 15000) {
+            timeLeftInMillis -= 15000;
+            updateTimerText();
+            
+            // Calculate and show next instruction
+            long elapsedTime = SESSION_DURATION_MS - timeLeftInMillis;
+            int instructionIndex = (int) ((elapsedTime / 1000) / 30);
+            if (instructionIndex < MEDITATION_INSTRUCTIONS.length) {
+                currentFocusDescription.setText(MEDITATION_INSTRUCTIONS[instructionIndex]);
+            }
+            
+            // Restart timer with new time
+            startTimer();
+        }
     }
     
     private void playPreviousTrack() {
@@ -310,23 +327,23 @@ public class DepressionHelpActivity extends AppCompatActivity {
         // Initialize and play the previous track
         initializeMediaPlayer(prevTrack);
         playMusic();
-        updateTrackTitle();
         
-        Toast.makeText(this, "Playing previous track", Toast.LENGTH_SHORT).show();
-    }
-    
-    private void updateTrackTitle() {
-        // First check if the TextView is null
-        if (trackTitle == null) {
-            return;
+        // Add 15 seconds to the timer
+        timeLeftInMillis += 15000;
+        if (timeLeftInMillis > SESSION_DURATION_MS) {
+            timeLeftInMillis = SESSION_DURATION_MS;
+        }
+        updateTimerText();
+        
+        // Calculate and show previous instruction
+        long elapsedTime = SESSION_DURATION_MS - timeLeftInMillis;
+        int instructionIndex = (int) ((elapsedTime / 1000) / 30);
+        if (instructionIndex < MEDITATION_INSTRUCTIONS.length) {
+            currentFocusDescription.setText(MEDITATION_INSTRUCTIONS[instructionIndex]);
         }
         
-        if (!trackList.isEmpty() && currentTrackIndex >= 0 && currentTrackIndex < trackList.size()) {
-            String track = trackList.get(currentTrackIndex);
-            // Format track name for display (remove extension, replace underscores with spaces)
-            String displayName = track.replace(".mp3", "").replace("_", " ");
-            trackTitle.setText(displayName);
-        }
+        // Restart timer with new time
+        startTimer();
     }
     
     private void saveCurrentPlaybackState() {
@@ -344,28 +361,28 @@ public class DepressionHelpActivity extends AppCompatActivity {
     }
     
     private void startTimer() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+        }
+        
         countDownTimer = new CountDownTimer(timeLeftInMillis, 1000) {
             @Override
             public void onTick(long millisUntilFinished) {
                 timeLeftInMillis = millisUntilFinished;
                 updateTimerText();
+                updateMeditationInstruction();
             }
 
             @Override
             public void onFinish() {
                 timerRunning = false;
                 pauseButton.setImageResource(android.R.drawable.ic_media_play);
-                Toast.makeText(DepressionHelpActivity.this, "Session completed!", Toast.LENGTH_LONG).show();
-                // Reset timer for future use
-                timeLeftInMillis = SESSION_DURATION_MS;
-                updateTimerText();
-                
-                // Pause music when session ends
-                pauseMusic();
+                Toast.makeText(DepressionHelpActivity.this, "Meditation session complete", Toast.LENGTH_SHORT).show();
             }
         }.start();
 
         timerRunning = true;
+        pauseButton.setImageResource(android.R.drawable.ic_media_pause);
     }
     
     private void pauseTimer() {
@@ -381,6 +398,18 @@ public class DepressionHelpActivity extends AppCompatActivity {
         
         String timeLeftFormatted = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds);
         timerText.setText(timeLeftFormatted);
+    }
+    
+    private void updateMeditationInstruction() {
+        if (currentFocusDescription != null) {
+            // Calculate which instruction to show based on elapsed time
+            long elapsedTime = SESSION_DURATION_MS - timeLeftInMillis;
+            int instructionIndex = (int) ((elapsedTime / 1000) / 30); // Change instruction every 30 seconds
+            
+            if (instructionIndex < MEDITATION_INSTRUCTIONS.length) {
+                currentFocusDescription.setText(MEDITATION_INSTRUCTIONS[instructionIndex]);
+            }
+        }
     }
     
     private void releaseMediaPlayer() {

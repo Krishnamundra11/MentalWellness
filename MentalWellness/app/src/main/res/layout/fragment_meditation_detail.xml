@@ -44,17 +44,6 @@
                     android:textColor="#333333"
                     android:textSize="18sp"
                     android:textStyle="bold" />
-
-                <ImageButton
-                    android:id="@+id/btn_menu"
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:layout_alignParentEnd="true"
-                    android:layout_centerVertical="true"
-                    android:background="?attr/selectableItemBackgroundBorderless"
-                    android:contentDescription="Menu"
-                    android:src="@android:drawable/ic_menu_more"
-                    android:tint="#333333" />
             </RelativeLayout>
         </androidx.appcompat.widget.Toolbar>
 
