@@ -62,29 +62,6 @@
             </LinearLayout>
             
             <!-- Top right icons -->
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="end|top"
-                android:layout_margin="16dp">
-                
-                <ImageView
-                    android:id="@+id/btn_notification"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_notification"
-                    android:layout_marginEnd="16dp"
-                    android:tint="#FFFFFF"
-                    android:contentDescription="Notifications" />
-                    
-                <ImageView
-                    android:id="@+id/btn_profile"
-                    android:layout_width="24dp"
-                    android:layout_height="24dp"
-                    android:src="@drawable/ic_profile"
-                    android:tint="#FFFFFF"
-                    android:contentDescription="Profile" />
-            </LinearLayout>
         </FrameLayout>
         
         <!-- Recommended Sessions Section -->

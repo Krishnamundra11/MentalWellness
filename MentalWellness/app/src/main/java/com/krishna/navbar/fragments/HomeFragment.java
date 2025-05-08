@@ -37,8 +37,7 @@ public class HomeFragment extends Fragment {
     private CardView cardStress;
     private CardView cardFocus;
     private CardView cardNature;
-    private ImageView btnNotification;
-    private ImageView btnProfile;
+
     private TextView tvGreeting;
     private TextView tvSubGreeting;
     private UserUtils userUtils;
@@ -83,10 +82,6 @@ public class HomeFragment extends Fragment {
         cardFocus = view.findViewById(R.id.card_focus);
         cardNature = view.findViewById(R.id.card_nature);
         
-        // Buttons
-        btnNotification = view.findViewById(R.id.btn_notification);
-        btnProfile = view.findViewById(R.id.btn_profile);
-        
         // TextViews
         tvGreeting = view.findViewById(R.id.tv_greeting);
         tvSubGreeting = view.findViewById(R.id.tv_sub_greeting);
@@ -106,12 +101,7 @@ public class HomeFragment extends Fragment {
         cardFocus.setOnClickListener(v -> startActivity(new Intent(getActivity(), DepressionHelpActivity.class)));
         cardNature.setOnClickListener(v -> navigateToMeditationGuide());
         
-        // Top Buttons
-        btnNotification.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Notifications", Toast.LENGTH_SHORT).show());
-            
-        btnProfile.setOnClickListener(v -> 
-            Toast.makeText(getContext(), "Profile", Toast.LENGTH_SHORT).show());
+
     }
     
     /**
